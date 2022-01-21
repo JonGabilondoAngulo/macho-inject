@@ -2,7 +2,7 @@
 OS X command line tool to inject Frameworks and dylibs on mach-o binaries. It does the injection of the framework and the codesigning. It can be used to codesign Apps only as well.
 
 ## Build
-Open the macho-inject.xcodeproj and build it. The result is a command line tool called "macho-inject".
+Open the macho-inject.xcodeproj and build it. The result is a command line tool called "macho_inject".
 
 ## Usage
 
