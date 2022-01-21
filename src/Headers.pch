@@ -1,0 +1,24 @@
+//
+//  Headers.pch
+//  macho-inject
+//
+//  Created by Jon Gabilondo on 28/02/2017.
+//
+#include <stdio.h>
+#include <string>
+#include <iostream>
+#include <boost/filesystem.hpp>
+#include <boost/program_options.hpp>
+#include <dirent.h>
+#include <plist/plist.h>
+#include <sys/stat.h>
+#include "constants.hpp"
+#include "macho_headers.h"
+#include "error_codes.cpp"
+#include "system.hpp"
+#include "file.hpp"
+#include "version.hpp"
+#include "options.hpp"
+
+#define ORGLOG(a) std::cout << a << std::endl
+#define ORGLOG_V(a) if (verbose) { std::cout << a << std::endl;}

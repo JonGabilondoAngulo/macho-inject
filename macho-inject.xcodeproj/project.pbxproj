@@ -1,0 +1,352 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 51;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		03221BD81F12280400039851 /* codesign.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BC21F12280400039851 /* codesign.cpp */; };
+		03221BD91F12280400039851 /* constants.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BC41F12280400039851 /* constants.cpp */; };
+		03221BDB1F12280400039851 /* error_codes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BC81F12280400039851 /* error_codes.cpp */; };
+		03221BDC1F12280400039851 /* file.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BC91F12280400039851 /* file.cpp */; };
+		03221BDD1F12280400039851 /* injection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BCC1F12280400039851 /* injection.cpp */; };
+		03221BDE1F12280400039851 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BCF1F12280400039851 /* main.cpp */; };
+		03221BDF1F12280400039851 /* options.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BD01F12280400039851 /* options.cpp */; };
+		03221BE01F12280400039851 /* packaging.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BD21F12280400039851 /* packaging.cpp */; };
+		03221BE11F12280400039851 /* system.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BD41F12280400039851 /* system.cpp */; };
+		03221BE21F12280400039851 /* version.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BD61F12280400039851 /* version.cpp */; };
+		03221BE51F1233D600039851 /* plist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BE31F1233D600039851 /* plist.cpp */; };
+		036B64211E6462B6000991FD /* libboost_program_options.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 036B64201E6462B6000991FD /* libboost_program_options.a */; };
+		036B64241E6462C6000991FD /* libboost_filesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 036B64221E6462C6000991FD /* libboost_filesystem.a */; };
+		036B64251E6462C6000991FD /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 036B64231E6462C6000991FD /* libboost_system.a */; };
+		039B700B269899F80091B2CE /* copy_folder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BC61F12280400039851 /* copy_folder.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		0373D0CC19D99D5400754E1D /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		03221BC21F12280400039851 /* codesign.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = codesign.cpp; path = src/codesign.cpp; sourceTree = "<group>"; };
+		03221BC31F12280400039851 /* codesign.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = codesign.hpp; path = src/codesign.hpp; sourceTree = "<group>"; };
+		03221BC41F12280400039851 /* constants.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = constants.cpp; path = src/constants.cpp; sourceTree = "<group>"; };
+		03221BC51F12280400039851 /* constants.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = constants.hpp; path = src/constants.hpp; sourceTree = "<group>"; };
+		03221BC61F12280400039851 /* copy_folder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = copy_folder.cpp; path = src/copy_folder.cpp; sourceTree = "<group>"; };
+		03221BC71F12280400039851 /* copy_folder.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = copy_folder.hpp; path = src/copy_folder.hpp; sourceTree = "<group>"; };
+		03221BC81F12280400039851 /* error_codes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = error_codes.cpp; path = src/error_codes.cpp; sourceTree = "<group>"; };
+		03221BC91F12280400039851 /* file.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = file.cpp; path = src/file.cpp; sourceTree = "<group>"; };
+		03221BCA1F12280400039851 /* file.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = file.hpp; path = src/file.hpp; sourceTree = "<group>"; };
+		03221BCB1F12280400039851 /* Headers.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Headers.pch; path = src/Headers.pch; sourceTree = "<group>"; };
+		03221BCC1F12280400039851 /* injection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = injection.cpp; path = src/injection.cpp; sourceTree = "<group>"; };
+		03221BCD1F12280400039851 /* injection.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = injection.hpp; path = src/injection.hpp; sourceTree = "<group>"; };
+		03221BCE1F12280400039851 /* macho_headers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = macho_headers.h; path = src/macho_headers.h; sourceTree = "<group>"; };
+		03221BCF1F12280400039851 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = src/main.cpp; sourceTree = "<group>"; };
+		03221BD01F12280400039851 /* options.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = options.cpp; path = src/options.cpp; sourceTree = "<group>"; };
+		03221BD11F12280400039851 /* options.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = options.hpp; path = src/options.hpp; sourceTree = "<group>"; };
+		03221BD21F12280400039851 /* packaging.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = packaging.cpp; path = src/packaging.cpp; sourceTree = "<group>"; };
+		03221BD31F12280400039851 /* packaging.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = packaging.hpp; path = src/packaging.hpp; sourceTree = "<group>"; };
+		03221BD41F12280400039851 /* system.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = system.cpp; path = src/system.cpp; sourceTree = "<group>"; };
+		03221BD51F12280400039851 /* system.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = system.hpp; path = src/system.hpp; sourceTree = "<group>"; };
+		03221BD61F12280400039851 /* version.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = version.cpp; path = src/version.cpp; sourceTree = "<group>"; };
+		03221BD71F12280400039851 /* version.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = version.hpp; path = src/version.hpp; sourceTree = "<group>"; };
+		03221BE31F1233D600039851 /* plist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = plist.cpp; path = src/plist.cpp; sourceTree = "<group>"; };
+		03221BE41F1233D600039851 /* plist.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = plist.hpp; path = src/plist.hpp; sourceTree = "<group>"; };
+		036B64201E6462B6000991FD /* libboost_program_options.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_program_options.a; path = third_party/boost/stage/lib/libboost_program_options.a; sourceTree = SOURCE_ROOT; };
+		036B64221E6462C6000991FD /* libboost_filesystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_filesystem.a; path = third_party/boost/stage/lib/libboost_filesystem.a; sourceTree = SOURCE_ROOT; };
+		036B64231E6462C6000991FD /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = third_party/boost/stage/lib/libboost_system.a; sourceTree = SOURCE_ROOT; };
+		0373D0CE19D99D5400754E1D /* macho_inject */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = macho_inject; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0373D0CB19D99D5400754E1D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				036B64211E6462B6000991FD /* libboost_program_options.a in Frameworks */,
+				036B64251E6462C6000991FD /* libboost_system.a in Frameworks */,
+				036B64241E6462C6000991FD /* libboost_filesystem.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		031F2C431E65AEAA002C2898 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		03221BC11F1227ED00039851 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				03221BCF1F12280400039851 /* main.cpp */,
+				03221BC21F12280400039851 /* codesign.cpp */,
+				03221BC31F12280400039851 /* codesign.hpp */,
+				03221BC41F12280400039851 /* constants.cpp */,
+				03221BC51F12280400039851 /* constants.hpp */,
+				03221BC61F12280400039851 /* copy_folder.cpp */,
+				03221BC71F12280400039851 /* copy_folder.hpp */,
+				03221BC81F12280400039851 /* error_codes.cpp */,
+				03221BC91F12280400039851 /* file.cpp */,
+				03221BCA1F12280400039851 /* file.hpp */,
+				03221BCB1F12280400039851 /* Headers.pch */,
+				03221BCC1F12280400039851 /* injection.cpp */,
+				03221BCD1F12280400039851 /* injection.hpp */,
+				03221BCE1F12280400039851 /* macho_headers.h */,
+				03221BD01F12280400039851 /* options.cpp */,
+				03221BD11F12280400039851 /* options.hpp */,
+				03221BD21F12280400039851 /* packaging.cpp */,
+				03221BD31F12280400039851 /* packaging.hpp */,
+				03221BE31F1233D600039851 /* plist.cpp */,
+				03221BE41F1233D600039851 /* plist.hpp */,
+				03221BD41F12280400039851 /* system.cpp */,
+				03221BD51F12280400039851 /* system.hpp */,
+				03221BD61F12280400039851 /* version.cpp */,
+				03221BD71F12280400039851 /* version.hpp */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		036B64261E646DF2000991FD /* Libs */ = {
+			isa = PBXGroup;
+			children = (
+				036B64201E6462B6000991FD /* libboost_program_options.a */,
+				036B64221E6462C6000991FD /* libboost_filesystem.a */,
+				036B64231E6462C6000991FD /* libboost_system.a */,
+			);
+			name = Libs;
+			sourceTree = "<group>";
+		};
+		0373D0C519D99D5400754E1D = {
+			isa = PBXGroup;
+			children = (
+				03221BC11F1227ED00039851 /* Source */,
+				036B64261E646DF2000991FD /* Libs */,
+				0373D0CF19D99D5400754E1D /* Products */,
+				031F2C431E65AEAA002C2898 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		0373D0CF19D99D5400754E1D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0373D0CE19D99D5400754E1D /* macho_inject */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0373D0CD19D99D5400754E1D /* macho_inject */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0373D0D719D99D5400754E1D /* Build configuration list for PBXNativeTarget "macho_inject" */;
+			buildPhases = (
+				0373D0CA19D99D5400754E1D /* Sources */,
+				0373D0CB19D99D5400754E1D /* Frameworks */,
+				0373D0CC19D99D5400754E1D /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = macho_inject;
+			productName = HPMCEnabler;
+			productReference = 0373D0CE19D99D5400754E1D /* macho_inject */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0373D0C619D99D5400754E1D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0510;
+				ORGANIZATIONNAME = Organismo;
+			};
+			buildConfigurationList = 0373D0C919D99D5400754E1D /* Build configuration list for PBXProject "macho-inject" */;
+			compatibilityVersion = "Xcode 10.0";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				English,
+				en,
+			);
+			mainGroup = 0373D0C519D99D5400754E1D;
+			productRefGroup = 0373D0CF19D99D5400754E1D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				0373D0CD19D99D5400754E1D /* macho_inject */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0373D0CA19D99D5400754E1D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				03221BDF1F12280400039851 /* options.cpp in Sources */,
+				03221BD81F12280400039851 /* codesign.cpp in Sources */,
+				03221BE51F1233D600039851 /* plist.cpp in Sources */,
+				03221BE01F12280400039851 /* packaging.cpp in Sources */,
+				03221BE21F12280400039851 /* version.cpp in Sources */,
+				03221BD91F12280400039851 /* constants.cpp in Sources */,
+				03221BDD1F12280400039851 /* injection.cpp in Sources */,
+				03221BE11F12280400039851 /* system.cpp in Sources */,
+				03221BDE1F12280400039851 /* main.cpp in Sources */,
+				03221BDC1F12280400039851 /* file.cpp in Sources */,
+				039B700B269899F80091B2CE /* copy_folder.cpp in Sources */,
+				03221BDB1F12280400039851 /* error_codes.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		0373D0D519D99D5400754E1D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LIBRARY_SEARCH_PATHS = "";
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		0373D0D619D99D5400754E1D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LIBRARY_SEARCH_PATHS = "";
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		0373D0D819D99D5400754E1D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREFIX_HEADER = src/Headers.pch;
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/third_party/boost\"";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/third_party/boost/stage/lib",
+					"$(PROJECT_DIR)",
+					/usr/local/lib,
+				);
+				OTHER_LDFLAGS = "-lplist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYSTEM_HEADER_SEARCH_PATHS = /usr/local/include;
+				VERSIONING_SYSTEM = "";
+			};
+			name = Debug;
+		};
+		0373D0D919D99D5400754E1D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREFIX_HEADER = src/Headers.pch;
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/third_party/boost\"";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/third_party/boost/stage/lib",
+					"$(PROJECT_DIR)",
+					/usr/local/lib,
+				);
+				OTHER_LDFLAGS = "-lplist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYSTEM_HEADER_SEARCH_PATHS = /usr/local/include;
+				VERSIONING_SYSTEM = "";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0373D0C919D99D5400754E1D /* Build configuration list for PBXProject "macho-inject" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0373D0D519D99D5400754E1D /* Debug */,
+				0373D0D619D99D5400754E1D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0373D0D719D99D5400754E1D /* Build configuration list for PBXNativeTarget "macho_inject" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0373D0D819D99D5400754E1D /* Debug */,
+				0373D0D919D99D5400754E1D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0373D0C619D99D5400754E1D /* Project object */;
+}
