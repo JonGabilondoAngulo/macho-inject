@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 #define ERR_General_Error 99 // General error, investigate logs
-#define ERR_Bad_Arguments 100
+#define ERR_Bad_Argument 100
 #define ERR_Wrong_Use 101 // Wrong use of macho-inject
 #define ERR_App_Codesign_Failed 103 // Codesign process failed, general cause
 #define ERR_Dylib_Codesign_Failed 104 // Dylib Codesign process failed, general cause

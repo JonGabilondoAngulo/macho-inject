@@ -5,21 +5,77 @@
 //  Created by Jon Gabilondo on 3/15/17.
 //
 #include "injection.hpp"
+#include "plist.hpp"
 
 #define DYLIB_CURRENT_VER 0x10000
 #define DYLIB_COMPATIBILITY_VERSION 0x10000
 #define swap32(value) (((value & 0xFF000000) >> 24) | ((value & 0x00FF0000) >> 8) | ((value & 0x0000FF00) << 8) | ((value & 0x000000FF) << 24) )
 #define INJECT_BEFORE_CODE_SIGNATURE 0
 
-void inject_dylib(FILE* newFile, uint32_t top, const boost::filesystem::path& dylibPath)
+static int patch_binary(const boost::filesystem::path & binaryPath, const boost::filesystem::path & dllPath, bool isFramework);
+
+int inj_inject_framework_into_app(const boost::filesystem::path &appPath, const boost::filesystem::path &frameworkPath)
+{
+    int err = noErr;
+    const std::string QUOTE = "\"";
+    const std::string SPACE = " ";
+
+    ORGLOG("Injecting framework ...");
+    
+    boost::filesystem::path frameworksFolderPath = appPath;
+    frameworksFolderPath.append("Contents/Frameworks");
+    
+    // Create destination folder.
+    if (boost::filesystem::exists(frameworksFolderPath) == false) {
+        if (!boost::filesystem::create_directory(frameworksFolderPath)) {
+            ORGLOG("Error creating Framework folder in the App: " << frameworksFolderPath);
+            return ERR_General_Error;
+        }
+    }
+        
+    ORGLOG_V("Copying the framework into the App");
+    std::string systemCmd = "/bin/cp -af " + QUOTE + (std::string)frameworkPath.c_str() + QUOTE + SPACE + QUOTE + frameworksFolderPath.c_str() + QUOTE;
+    err = system((const char*)systemCmd.c_str());
+    if (err) {
+        ORGLOG("Failed copying the framework into the App.");
+        return ERR_General_Error;
+    }
+    
+    boost::filesystem::path pathToInfoplist = appPath;
+    pathToInfoplist.append("Contents/Info.plist");
+    
+    std::string binaryFileName = get_app_binary_file_name(pathToInfoplist);
+    
+    if (!binaryFileName.empty())  {
+        boost::filesystem::path pathToAppBinary = appPath / "Contents" / "MacOS";
+        pathToAppBinary.append(binaryFileName);
+        
+        if (boost::filesystem::exists(pathToAppBinary) == false) {
+            ORGLOG("Could not find the binary file: " << pathToAppBinary);
+            return ERR_General_Error;
+        }
+        
+        err = patch_binary(pathToAppBinary, frameworkPath, true);
+        if (err) {
+            ORGLOG("Failed patching app binary.");
+            return ERR_Injection_Failed;
+        }
+    } else {
+        ORGLOG("Failed retrieving app binary file name.");
+        return ERR_Injection_Failed;
+    }
+    return noErr;
+}
+
+void inj_inject_dylib(FILE* binaryFile, uint32_t top, const boost::filesystem::path& dylibPath)
 {
     
     // 1. Seek Slice start
-    fseek(newFile, top, SEEK_SET); // go to slice start
+    fseek(binaryFile, top, SEEK_SET); // go to slice start
     struct mach_header mach;
     
     // 2. Read the mac header to modify
-    fread(&mach, sizeof(struct mach_header), 1, newFile); // read the mach header, it's at the beginning of the slice
+    fread(&mach, sizeof(struct mach_header), 1, binaryFile); // read the mach header, it's at the beginning of the slice
     
     uint32_t dylib_size = (uint32_t)dylibPath.string().length() + sizeof(struct dylib_command);
     dylib_size += sizeof(long) - (dylib_size % sizeof(long)); // load commands like to be aligned by long
@@ -36,37 +92,37 @@ void inject_dylib(FILE* newFile, uint32_t top, const boost::filesystem::path& dy
 //    }
     
     // 3. Modify the mac header
-    //fseek(newFile, -sizeof(struct mach_header), SEEK_CUR); // back to slice top
-    fseek(newFile, top, SEEK_SET); // go to slice start
-    fwrite(&mach, sizeof(struct mach_header), 1, newFile); // write new mach0 header, advances to the start of load commands
+    //fseek(binaryFile, -sizeof(struct mach_header), SEEK_CUR); // back to slice top
+    fseek(binaryFile, top, SEEK_SET); // go to slice start
+    fwrite(&mach, sizeof(struct mach_header), 1, binaryFile); // write new mach0 header, advances to the start of load commands
     ORGLOG_V("Patching mach_header");
     
     // 4. GO TO THE END OF LAST COMMAND
-    fseek(newFile, top, SEEK_SET); // go to slice start
-    //fseek(newFile, sizeof(struct mach_header)+sizeofcmds, SEEK_CUR); // go to the end of last command
+    fseek(binaryFile, top, SEEK_SET); // go to slice start
+    //fseek(binaryFile, sizeof(struct mach_header)+sizeofcmds, SEEK_CUR); // go to the end of last command
     if (mach.magic == MH_MAGIC_64) {
-        fseek(newFile, sizeof(struct mach_header_64)+current_sizeofcmds, SEEK_CUR); // go to the end of last command
+        fseek(binaryFile, sizeof(struct mach_header_64)+current_sizeofcmds, SEEK_CUR); // go to the end of last command
     } else {
-        fseek(newFile, sizeof(struct mach_header)+current_sizeofcmds, SEEK_CUR); // go to the end of last command
+        fseek(binaryFile, sizeof(struct mach_header)+current_sizeofcmds, SEEK_CUR); // go to the end of last command
     }
     
     
 #if INJECT_BEFORE_CODE_SIGNATURE
     // 5. Get LC_CODE_SIGNATURE to write it at the end later
     struct linkedit_data_command lc_code_signature;
-    fseek(newFile, -sizeof(struct linkedit_data_command), SEEK_CUR);
-    fread(&lc_code_signature, sizeof(struct linkedit_data_command), 1, newFile);
+    fseek(binaryFile, -sizeof(struct linkedit_data_command), SEEK_CUR);
+    fread(&lc_code_signature, sizeof(struct linkedit_data_command), 1, binaryFile);
     if (lc_code_signature.cmd != LC_CODE_SIGNATURE) {
         ORGLOG("Did not find the LC_CODE_SIGNATURE command !");
         return;
     }
 
     // 6. Write our load command on top of LC_CODE_SIGNATURE
-    fseek(newFile, -sizeof(struct linkedit_data_command), SEEK_CUR);
+    fseek(binaryFile, -sizeof(struct linkedit_data_command), SEEK_CUR);
 #endif
     
     struct dylib_command dyld;
-    fread(&dyld, sizeof(struct dylib_command), 1, newFile);
+    fread(&dyld, sizeof(struct dylib_command), 1, binaryFile);
     
     ORGLOG_V("Attaching the library");
     
@@ -76,22 +132,22 @@ void inject_dylib(FILE* newFile, uint32_t top, const boost::filesystem::path& dy
     dyld.dylib.current_version = DYLIB_CURRENT_VER;
     dyld.dylib.timestamp = 2;
     dyld.dylib.name.offset = sizeof(struct dylib_command);
-    fseek(newFile, -sizeof(struct dylib_command), SEEK_CUR);
-    fwrite(&dyld, sizeof(struct dylib_command), 1, newFile);
+    fseek(binaryFile, -sizeof(struct dylib_command), SEEK_CUR);
+    fwrite(&dyld, sizeof(struct dylib_command), 1, binaryFile);
     
-    size_t bytes = fwrite(dylibPath.string().data(), dylibPath.string().length(), 1, newFile); // write the dylib load string
+    size_t bytes = fwrite(dylibPath.string().data(), dylibPath.string().length(), 1, binaryFile); // write the dylib load string
     if (bytes==0) {
         ORGLOG_V("ERROR writing the loading path to the loading commands. In inject_dylib.");
     }
     
     // 7. Pad position. Maybe dylibPath is not exactly falling into size of long.
     if (dylibPath.string().length() % sizeof(long)) {
-        fseek(newFile, sizeof(long) - (dylibPath.string().length() % sizeof(long)), SEEK_CUR);
+        fseek(binaryFile, sizeof(long) - (dylibPath.string().length() % sizeof(long)), SEEK_CUR);
     }
     
 #if INJECT_BEFORE_CODE_SIGNATURE
     // 8. Write LC_CODE_SIGNATURE
-    bytes = fwrite(&lc_code_signature, sizeof(struct linkedit_data_command), 1, newFile); // write the dylib load string
+    bytes = fwrite(&lc_code_signature, sizeof(struct linkedit_data_command), 1, binaryFile); // write the dylib load string
     if (bytes==0) {
         ORGLOG_V("ERROR writing LC_CODE_SIGNATURE to load commands.");
     }
@@ -129,13 +185,13 @@ int patch_binary(const boost::filesystem::path & binaryPath, const boost::filesy
         int i;
         for (i = 0; i < swap32(fh->nfat_arch); i++) {
             ORGLOG_V("Injecting to arch" << swap32(arch->cpusubtype));
-            inject_dylib(binaryFile, swap32(arch->offset), dylibPath);
+            inj_inject_dylib(binaryFile, swap32(arch->offset), dylibPath);
             arch++;
         }
     }
     else {
         ORGLOG_V("App has thin binary");
-        inject_dylib(binaryFile, 0, dylibPath);
+        inj_inject_dylib(binaryFile, 0, dylibPath);
     }
     fclose(binaryFile);
     

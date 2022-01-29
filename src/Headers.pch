@@ -18,7 +18,7 @@
 #include "system.hpp"
 #include "file.hpp"
 #include "version.hpp"
-#include "options.hpp"
+#include "cmd_options.hpp"
 
 #define ORGLOG(a) std::cout << a << std::endl
 #define ORGLOG_V(a) if (verbose) { std::cout << a << std::endl;}

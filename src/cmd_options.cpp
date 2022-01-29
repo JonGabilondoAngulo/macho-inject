@@ -5,9 +5,9 @@
 //  Created by Jon Gabilondo on 20/03/2017.
 //
 
-#include "options.hpp"
+#include "cmd_options.hpp"
 
-int add_options_description(boost::program_options::options_description & description)
+int cmd_opt_add_descriptions(boost::program_options::options_description & description)
 {
     description.add_options()
     ("help,h", "Print help message.")
@@ -30,7 +30,7 @@ int add_options_description(boost::program_options::options_description & descri
     return 0;
 }
 
-int parse_options(int argc,
+int cmd_opt_parse_options(int argc,
                   const char * argv[],
                   boost::program_options::options_description & description,
                   boost::program_options::variables_map &vm)

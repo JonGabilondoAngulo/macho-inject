@@ -12,40 +12,46 @@
 #include "plist.hpp"
 #include "copy_folder.hpp"
 
-int main(int argc, const char * argv[])
-{
-    const std::string SPACE = " ";
-    const std::string QUOTE = "\"";
+bool doInjectFramework      = false;
+bool doCodesign             = false;
+bool copyEntitlements       = false;
+bool useResourceRules       = false;
+bool removeEntitlements     = false;
+bool removeCodeSignature    = false;
+bool createNewUrlScheme     = true;
+bool useOriginalResRules    = false;
+bool useGenericResRules     = false;
+bool forceResRules          = false;
+bool isIpaFile              = false;
+bool isAppFile              = false;
 
-    int err                     = 0;
-    bool doInjectFramework      = false;
-    bool doResign               = false;
-    bool copyEntitlements       = false;
-    bool useResourceRules       = false;
-    bool removeEntitlements     = false;
-    bool removeCodeSignature    = false;
-    bool createNewUrlScheme     = true;
-    bool useOriginalResRules    = false;
-    bool useGenericResRules     = false;
-    bool forceResRules          = false;
-    bool isIpaFile              = false;
-    
-    boost::filesystem::path argTargetFilePath;
-    boost::filesystem::path argFrameworkPath;
-    boost::filesystem::path argCertificatePath;
-    boost::filesystem::path argProvisionPath;
-    boost::filesystem::path argEntitlementsPath;
-    boost::filesystem::path argResourceRulesPath;
-    boost::filesystem::path argDestinationPath;
-    boost::filesystem::path argNewName;
-    boost::filesystem::path repackedAppPath;
-    
+boost::filesystem::path argTargetFilePath;
+boost::filesystem::path argFrameworkPath;
+boost::filesystem::path argCertificatePath;
+boost::filesystem::path argProvisionPath;
+boost::filesystem::path argEntitlementsPath;
+boost::filesystem::path argResourceRulesPath;
+boost::filesystem::path argDestinationPath;
+boost::filesystem::path argNewName;
+boost::filesystem::path repackedAppPath;
+boost::filesystem::path workingAppPath;
+boost::filesystem::path tempDirectoryPath;
+boost::filesystem::path tempDirectoryIPA;;
+
+static const std::string SPACE = " ";
+static const std::string QUOTE = "\"";
+
+int parse_options(int argc, const char * argv[])
+{
+    int err = 0;
+
     boost::program_options::options_description desc("Allowed options", 200); // 200 cols
     boost::program_options::variables_map vm;
-    add_options_description(desc);
-    err = parse_options(argc, argv, desc, vm);
-    if (err) {
-        exit(err);
+    cmd_opt_add_descriptions(desc);
+    err = cmd_opt_parse_options(argc, argv, desc, vm);
+    if (err != noErr) {
+        ORGLOG("Error parsing options.");
+        return err;
     }
     
     if (vm.count("help")) {
@@ -69,7 +75,7 @@ int main(int argc, const char * argv[])
     }
     if (vm.count("sign")) {
         argCertificatePath = vm["sign"].as<std::string>();
-        doResign = true;
+        doCodesign = true;
     }
     if (vm.count("provision")) {
         argProvisionPath = vm["provision"].as<std::string>();
@@ -106,53 +112,142 @@ int main(int argc, const char * argv[])
     if (vm.count("remove-code-signature")) {
         removeCodeSignature = true;
     }
-    
-    //------
-    // Check arguments
-    //------
-    
+    return err;
+}
+
+int check_arguments()
+{
     if (!argTargetFilePath.empty()) {
         if (!boost::filesystem::exists(argTargetFilePath)) {
             ORGLOG("Error: target file not found at: " << argTargetFilePath);
-            exit (ERR_Bad_Arguments);
+            return (ERR_Bad_Argument);
         }
         boost::filesystem::path extension = argTargetFilePath.extension();
         if (extension != ".ipa" && extension != ".app") {
             ORGLOG("Error: target file must be .app or .ipa. File: " << argTargetFilePath);
-            exit (ERR_Bad_Arguments);
+            return (ERR_Bad_Argument);
         }
         isIpaFile = (extension == ".ipa");
+        isAppFile = (extension == ".app");
 
     } else {
         ORGLOG("Error: Missing target file.");
-        exit (ERR_Bad_Arguments);
+        return (ERR_Bad_Argument);
     }
     
     if (doInjectFramework) {
         if (!boost::filesystem::exists(argFrameworkPath)) {
             ORGLOG("Framework file not found at: " << argFrameworkPath);
-            exit (ERR_Bad_Arguments);
+            return (ERR_Bad_Argument);
         }
     }
     
     if (!argProvisionPath.empty()) {
         if (!boost::filesystem::exists(argProvisionPath)) {
             ORGLOG("Provision Profile not found at: " << argProvisionPath);
-            exit (ERR_Bad_Arguments);
+            return (ERR_Bad_Argument);
         }
     }
     
     if (!argDestinationPath.empty() && !boost::filesystem::exists(argDestinationPath)) {
         ORGLOG("Destination folder does not exist: " << argDestinationPath);
-        exit (ERR_Bad_Arguments);
+        return (ERR_Bad_Argument);
+    }
+    return noErr;
+}
+
+int codesign_app()
+{
+    int err = noErr;
+
+    ORGLOG("Codesigning the app ...");
+    
+    if (!argProvisionPath.empty()) {
+        err = copy_provision_file(workingAppPath, argProvisionPath);
+        if (err) {
+            return ERR_General_Error;
+        }
     }
     
-    //------
-    // Preparations
-    //------
+    if (removeEntitlements) {
+        err = remove_entitlements(workingAppPath);
+    }
+    
+    if (removeCodeSignature) {
+        err = remove_codesign(workingAppPath);
+    }
+    
+    std::string systemCmd = (std::string)"/usr/bin/codesign --deep --force -s '" + (std::string)argCertificatePath.c_str() + (std::string)"' ";
+    
+    // Important entitlements info:
+    // no entitlements provided in arguments, extract them from mobile provision
+    // the provision file could be given in argument, if not extract it from the embeded.mobileprovision
+    boost::filesystem::path entitlementsFilePath;
+    
+    if (copyEntitlements) {
+        entitlementsFilePath = argEntitlementsPath;
+        
+        ORGLOG_V("Codesign using entitlements. " << entitlementsFilePath);
+        systemCmd += (std::string)" --entitlements='" + entitlementsFilePath.string() + "'";
+    } else {
+        ORGLOG_V("Codesign preserving entitlements.");
+        systemCmd += " --preserve-metadata=entitlements";
+    }
+                
+    std::string resRulesFile;
+    if (useResourceRules) {
+        resRulesFile = argResourceRulesPath.c_str();
+    } else {
+        resRulesFile = resource_rules_file(forceResRules, useOriginalResRules, useGenericResRules, workingAppPath, tempDirectoryPath);
+    }
+    
+    if (resRulesFile.length()) {
+        ORGLOG_V("Codesign using resource rules file :" << (std::string)resRulesFile);
+        systemCmd += (std::string)" --resource-rules='" + resRulesFile + "'";
+    }
+    
+    systemCmd += " \"" + workingAppPath.string() + "\"";
+    
+    // Codesign dylibs
+    if (!codesign_at_path(workingAppPath, argCertificatePath, entitlementsFilePath)) {
+        err = ERR_Dylib_Codesign_Failed;
+        ORGLOG("Codesigning one or more dylibs failed");
+    }
+    
+    // Codesigning extensions under plugins folder
+    boost::filesystem::path extensionsFolderPath = workingAppPath;
+    extensionsFolderPath.append("Contents/PlugIns");
+    if (codesign_at_path(extensionsFolderPath, argCertificatePath, entitlementsFilePath)) {
+        ORGLOG_V("Plugins codesign sucessful!");
+    }
+    
+    // Codesigning frameworks
+    boost::filesystem::path frameworksFolderPath = workingAppPath;
+    frameworksFolderPath.append("Contents/Frameworks");
+    if (codesign_at_path(frameworksFolderPath, argCertificatePath, entitlementsFilePath)) {
+        ORGLOG_V("Frameworks codesign sucessful!");
+    }
+    
+    if (!silenceCmdOutput.empty()) {
+        systemCmd += SPACE + silenceCmdOutput;
+    }
+
+    // sign the app
+    err = system((const char*)systemCmd.c_str());
+    if (err) {
+        ORGLOG("Codesigning app failed");
+        return  ERR_App_Codesign_Failed;
+    }
+
+    return err;
+}
+
+int prepare_folders()
+{
+    int err = 0;
     
     // Create temp folder path
-    boost::filesystem::path tempDirectoryPath = boost::filesystem::temp_directory_path() / "macho_inject";
+    tempDirectoryPath = boost::filesystem::temp_directory_path() / "macho_inject";
 
     // Remove old temp if exist
     if (boost::filesystem::exists(tempDirectoryPath)) {
@@ -160,26 +255,29 @@ int main(int argc, const char * argv[])
         err = system(systemCmd.c_str());
         if (err != noErr) {
             ORGLOG("Error: Failed to delete temp folder. " << tempDirectoryPath);
-            exit (ERR_General_Error);
+            return (ERR_General_Error);
         }
     }
     
     // Remove old ipa
-    boost::filesystem::path tempDirectoryIPA = tempDirectoryPath;
+    tempDirectoryIPA = tempDirectoryPath;
     tempDirectoryIPA.replace_extension("ipa");
     if (boost::filesystem::exists(tempDirectoryIPA)) {
         std::string systemCmd = (std::string)"rm -rf " + tempDirectoryIPA.string();
         err = system(systemCmd.c_str());
+        if (err != noErr) {
+            ORGLOG("Error: Failed to delete folder. " << tempDirectoryIPA.string());
+            return (ERR_General_Error);
+        }
     }
     
-    boost::filesystem::path workingAppPath;
     if (isIpaFile) {
         // Unzip ipa file
         std::string tempDirectoryStd = tempDirectoryPath.string();
         ORGLOG_V("Unziping IPA into: " + tempDirectoryStd);
         if (unzip_ipa(argTargetFilePath.c_str(), tempDirectoryStd)) {
             ORGLOG("Error: Failed to unzip ipa.\n");
-            exit (ERR_General_Error);
+            return (ERR_General_Error);
         }
         
         // Create app path and app name
@@ -189,160 +287,24 @@ int main(int argc, const char * argv[])
         boost::filesystem::path appNameWithoutExtension = boost::filesystem::path(cmdResult).filename().replace_extension("");
         workingAppPath = tempDirectoryPath;
         workingAppPath.append("Payload").append(appName.string());
-    } else {
+    } else if (isAppFile) {
         if (!copy_bundle(argTargetFilePath, tempDirectoryPath)) {
             ORGLOG("Error: Failed copying target file to temp folder.: " << workingAppPath);
-            exit (ERR_General_Error);
+            return (ERR_General_Error);
         }
         workingAppPath = tempDirectoryPath / argTargetFilePath.filename();
+    } else {
+        ORGLOG("Error: file is not ipa/app.");
+        return (ERR_Bad_Argument);
     }
     ORGLOG_V("Path to app in temp folder: " << workingAppPath);
+    
+    return noErr;
+}
 
-    //------
-    // Injection
-    //------
-    
-    if (doInjectFramework) {
-        
-        ORGLOG("Injecting framework");
-        
-        boost::filesystem::path frameworksFolderPath = workingAppPath;
-        frameworksFolderPath.append("Contents/Frameworks");
-        
-        // Create destination folder.
-        if (boost::filesystem::exists(frameworksFolderPath) == false) {
-            if (!boost::filesystem::create_directory(frameworksFolderPath)) {
-                ORGLOG("Error creating Framework folder in the App: " << frameworksFolderPath);
-                goto CLEAN_EXIT;
-            }
-        }
-            
-        ORGLOG_V("Copying the framework into the App");
-        std::string systemCmd = "/bin/cp -af " + QUOTE + (std::string)argFrameworkPath.c_str() + QUOTE + SPACE + QUOTE + frameworksFolderPath.c_str() + QUOTE;
-        err = system((const char*)systemCmd.c_str());
-        if (err) {
-            ORGLOG("Failed copying the framework into the App.");
-            err = ERR_General_Error;
-            goto CLEAN_EXIT;
-        }
-        
-        boost::filesystem::path pathToInfoplist = workingAppPath;
-        pathToInfoplist.append("Contents/Info.plist");
-        
-        std::string binaryFileName = get_app_binary_file_name(pathToInfoplist);
-        
-        if (!binaryFileName.empty())  {
-            boost::filesystem::path pathToAppBinary = workingAppPath / "Contents" / "MacOS";
-            pathToAppBinary.append(binaryFileName);
-            
-            if (boost::filesystem::exists(pathToAppBinary) == false) {
-                ORGLOG("Could not find the binary file: " << pathToAppBinary);
-                err = ERR_General_Error;
-                goto CLEAN_EXIT;
-            }
-            
-            err = patch_binary(pathToAppBinary, argFrameworkPath, true);
-            if (err) {
-                ORGLOG("Failed patching app binary.");
-                err = ERR_Injection_Failed;
-                goto CLEAN_EXIT;
-            }
-        } else {
-            ORGLOG("Failed retrieving app binary file name.");
-            err = ERR_Injection_Failed;
-            goto CLEAN_EXIT;
-        }
-    }
-    
-    //------
-    // Codesign
-    //------
-    
-    if (doResign) {
-        
-        ORGLOG("Codesigning the app ...");
-        
-        {
-            if (!argProvisionPath.empty()) {
-                err = copy_provision_file(workingAppPath, argProvisionPath);
-                if (err) {
-                    err = ERR_General_Error;
-                    goto CLEAN_EXIT;
-                }
-            }
-            
-            if (removeEntitlements) {
-                err = remove_entitlements(workingAppPath);
-            }
-            
-            if (removeCodeSignature) {
-                err = remove_codesign(workingAppPath);
-            }
-            
-            std::string systemCmd = (std::string)"/usr/bin/codesign --deep --force -s '" + (std::string)argCertificatePath.c_str() + (std::string)"' ";
-            
-            // Important entitlements info:
-            // no entitlements provided in arguments, extract them from mobile provision
-            // the provision file could be given in argument, if not extract it from the embeded.mobileprovision
-            boost::filesystem::path entitlementsFilePath;
-            
-            if (copyEntitlements) {
-                entitlementsFilePath = argEntitlementsPath;
-                
-                ORGLOG_V("Codesign using entitlements. " << entitlementsFilePath);
-                systemCmd += (std::string)" --entitlements='" + entitlementsFilePath.string() + "'";
-            } else {
-                ORGLOG_V("Codesign preserving entitlements.");
-                systemCmd += " --preserve-metadata=entitlements";
-            }
-                        
-            std::string resRulesFile;
-            if (useResourceRules) {
-                resRulesFile = argResourceRulesPath.c_str();
-            } else {
-                resRulesFile = resource_rules_file(forceResRules, useOriginalResRules, useGenericResRules, workingAppPath, tempDirectoryPath);
-            }
-            
-            if (resRulesFile.length()) {
-                ORGLOG_V("Codesign using resource rules file :" << (std::string)resRulesFile);
-                systemCmd += (std::string)" --resource-rules='" + resRulesFile + "'";
-            }
-            
-            systemCmd += " \"" + workingAppPath.string() + "\"";
-            
-            // Codesign dylibs
-            if (!codesign_at_path(workingAppPath, argCertificatePath, entitlementsFilePath)) {
-                err = ERR_Dylib_Codesign_Failed;
-                ORGLOG("Codesigning one or more dylibs failed");
-            }
-            
-            // Codesigning extensions under plugins folder
-            boost::filesystem::path extensionsFolderPath = workingAppPath;
-            extensionsFolderPath.append("Contents/PlugIns");
-            if (codesign_at_path(extensionsFolderPath, argCertificatePath, entitlementsFilePath)) {
-                ORGLOG_V("Plugins codesign sucessful!");
-            }
-            
-            // Codesigning frameworks
-            boost::filesystem::path frameworksFolderPath = workingAppPath;
-            frameworksFolderPath.append("Contents/Frameworks");
-            if (codesign_at_path(frameworksFolderPath, argCertificatePath, entitlementsFilePath)) {
-                ORGLOG_V("Frameworks codesign sucessful!");
-            }
-            
-            if (!silenceCmdOutput.empty()) {
-                systemCmd += SPACE + silenceCmdOutput;
-            }
-
-            // sign the app
-            err = system((const char*)systemCmd.c_str());
-            if (err) {
-                err = ERR_App_Codesign_Failed;
-                ORGLOG("Codesigning app failed");
-                goto CLEAN_EXIT;
-            }
-        }
-    }
+int deploy_app_in_destination()
+{
+    int err = noErr;
     
     if (isIpaFile) {
         err = repack(tempDirectoryPath, repackedAppPath);
@@ -358,7 +320,7 @@ int main(int argc, const char * argv[])
                 ORGLOG("\nNew IPA path: " << newAppPath);
             }
          }
-    } else {
+    } else if (isAppFile) {
         if (!argDestinationPath.empty()) {
             boost::filesystem::path finalAppPath;
             if (copy_app(workingAppPath, argDestinationPath, finalAppPath)) {
@@ -372,8 +334,44 @@ int main(int argc, const char * argv[])
             ORGLOG("New App path: " << workingAppPath);
             ORGLOG("\nSUCCESS!");
         }
+    } else {
+        ORGLOG("Error: file is not ipa/app.");
+        err = ERR_Bad_Argument;
+    }
+    return err;
+}
+
+int main(int argc, const char * argv[])
+{
+    int err                     = 0;
+
+    err = parse_options(argc, argv);
+    if (err != noErr)
+        exit(err);
+    
+    err = check_arguments();
+    if (err != noErr)
+        exit(err);
+
+    err = prepare_folders();
+    if (err != noErr)
+        exit(err);
+
+
+    if (doInjectFramework) {
+        err = inj_inject_framework_into_app(workingAppPath, argFrameworkPath);
+        if (err != noErr)
+            goto CLEAN_EXIT;
     }
     
+    if (doCodesign) {
+        err = codesign_app();
+        if (err != noErr)
+            exit(err);
+    }
+    
+    err = deploy_app_in_destination();
+        
     
 CLEAN_EXIT:
     

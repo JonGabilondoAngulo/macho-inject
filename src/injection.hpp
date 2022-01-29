@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 
-void inject_dylib(FILE* newFile, uint32_t top, const boost::filesystem::path& dylibPath);
-int patch_binary(const boost::filesystem::path & binaryPath, const boost::filesystem::path & dllPath, bool isFramework);
+int inj_inject_framework_into_app(const boost::filesystem::path &appPath, const boost::filesystem::path &frameworkPath);
+void inj_inject_dylib(FILE* binaryFile, uint32_t top, const boost::filesystem::path& dylibPath);
 
 #endif /* injection_hpp */

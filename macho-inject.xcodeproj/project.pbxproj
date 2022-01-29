@@ -13,7 +13,7 @@
 		03221BDC1F12280400039851 /* file.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BC91F12280400039851 /* file.cpp */; };
 		03221BDD1F12280400039851 /* injection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BCC1F12280400039851 /* injection.cpp */; };
 		03221BDE1F12280400039851 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BCF1F12280400039851 /* main.cpp */; };
-		03221BDF1F12280400039851 /* options.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BD01F12280400039851 /* options.cpp */; };
+		03221BDF1F12280400039851 /* cmd_options.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BD01F12280400039851 /* cmd_options.cpp */; };
 		03221BE01F12280400039851 /* packaging.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BD21F12280400039851 /* packaging.cpp */; };
 		03221BE11F12280400039851 /* system.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BD41F12280400039851 /* system.cpp */; };
 		03221BE21F12280400039851 /* version.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BD61F12280400039851 /* version.cpp */; };
@@ -51,8 +51,8 @@
 		03221BCD1F12280400039851 /* injection.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = injection.hpp; path = src/injection.hpp; sourceTree = "<group>"; };
 		03221BCE1F12280400039851 /* macho_headers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = macho_headers.h; path = src/macho_headers.h; sourceTree = "<group>"; };
 		03221BCF1F12280400039851 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = src/main.cpp; sourceTree = "<group>"; };
-		03221BD01F12280400039851 /* options.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = options.cpp; path = src/options.cpp; sourceTree = "<group>"; };
-		03221BD11F12280400039851 /* options.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = options.hpp; path = src/options.hpp; sourceTree = "<group>"; };
+		03221BD01F12280400039851 /* cmd_options.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cmd_options.cpp; path = src/cmd_options.cpp; sourceTree = "<group>"; };
+		03221BD11F12280400039851 /* cmd_options.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = cmd_options.hpp; path = src/cmd_options.hpp; sourceTree = "<group>"; };
 		03221BD21F12280400039851 /* packaging.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = packaging.cpp; path = src/packaging.cpp; sourceTree = "<group>"; };
 		03221BD31F12280400039851 /* packaging.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = packaging.hpp; path = src/packaging.hpp; sourceTree = "<group>"; };
 		03221BD41F12280400039851 /* system.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = system.cpp; path = src/system.cpp; sourceTree = "<group>"; };
@@ -105,8 +105,8 @@
 				03221BCC1F12280400039851 /* injection.cpp */,
 				03221BCD1F12280400039851 /* injection.hpp */,
 				03221BCE1F12280400039851 /* macho_headers.h */,
-				03221BD01F12280400039851 /* options.cpp */,
-				03221BD11F12280400039851 /* options.hpp */,
+				03221BD01F12280400039851 /* cmd_options.cpp */,
+				03221BD11F12280400039851 /* cmd_options.hpp */,
 				03221BD21F12280400039851 /* packaging.cpp */,
 				03221BD31F12280400039851 /* packaging.hpp */,
 				03221BE31F1233D600039851 /* plist.cpp */,
@@ -199,7 +199,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				03221BDF1F12280400039851 /* options.cpp in Sources */,
+				03221BDF1F12280400039851 /* cmd_options.cpp in Sources */,
 				03221BD81F12280400039851 /* codesign.cpp in Sources */,
 				03221BE51F1233D600039851 /* plist.cpp in Sources */,
 				03221BE01F12280400039851 /* packaging.cpp in Sources */,
