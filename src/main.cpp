@@ -383,20 +383,23 @@ int main(int argc, const char * argv[])
 CLEAN_EXIT:
     
     if (std::filesystem::exists(tempDirectoryPath)) {
-        if (!std::filesystem::remove_all(tempDirectoryPath)) {
-            ORGLOG("Failed to delete temp folder on clean exit.");
+        std::error_code error;
+        if (!std::filesystem::remove_all(tempDirectoryPath, error)) {
+            ORGLOG("Failed to delete temp folder on clean exit. " << error.message());
         }
     }
     
     if (std::filesystem::exists(tempDirectoryIPA)) {
+        std::error_code error;
         if (!std::filesystem::remove_all(tempDirectoryIPA)) {
-            ORGLOG("Failed to delete temp IPA folder on clean exit.");
+            ORGLOG("Failed to delete temp IPA folder on clean exit. " << error.message());
         }
     }
     
     if (std::filesystem::exists(repackedAppPath)) {
+        std::error_code error;
         if (!std::filesystem::remove(repackedAppPath)) {
-            ORGLOG("Failed to delete reapacked IPA file on clean exit.");
+            ORGLOG("Failed to delete reapacked IPA file on clean exit. " << error.message());
         }
     }
     

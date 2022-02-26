@@ -30,8 +30,9 @@ int inj_inject_framework_into_app(const std::filesystem::path &appPath, const st
     
     // Create destination folder.
     if (std::filesystem::exists(frameworksFolderPath) == false) {
-        if (!std::filesystem::create_directory(frameworksFolderPath)) {
-            ORGLOG("Error creating Framework folder in the App: " << frameworksFolderPath);
+        std::error_code error;
+        if (!std::filesystem::create_directory(frameworksFolderPath, error)) {
+            ORGLOG("Error creating Framework folder in the App: " << frameworksFolderPath << " Err: " << error.message());
             return ERR_General_Error;
         }
     }
