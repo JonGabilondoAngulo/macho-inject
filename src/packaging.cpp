@@ -25,15 +25,15 @@ int unzip_ipa(const std::string argIpaPath,const std::string tempDirectory)
 }
 
 
-int repack( const boost::filesystem::path & unpackedAppPath,
-           boost::filesystem::path & outRepackedIPAPath)
+int repack( const std::filesystem::path & unpackedAppPath,
+           std::filesystem::path & outRepackedIPAPath)
 {
     ORGLOG("Packaging new ipa.");
     
-    boost::filesystem::path zipPath;    
+    std::filesystem::path zipPath;    
     zipPath = "zip";
     
-    boost::filesystem::path repackedAppPath( boost::filesystem::temp_directory_path() / "machoRepackedIpa.ipa");
+    std::filesystem::path repackedAppPath( std::filesystem::temp_directory_path() / "machoRepackedIpa.ipa");
     
     // Go into the folder to zip with pushd and zip the contents into a file one level up.
     std::string systemCmd = "pushd " + (std::string)unpackedAppPath.c_str() + " > /dev/null; " + zipPath.c_str() + (std::string)" -qry " + repackedAppPath.c_str() + " *; popd > /dev/null";
@@ -44,14 +44,14 @@ int repack( const boost::filesystem::path & unpackedAppPath,
 }
 
 
-int deploy_IPA(const boost::filesystem::path & inputIPAPath,
-                                const boost::filesystem::path & originalIPAPath,
+int deploy_IPA(const std::filesystem::path & inputIPAPath,
+                                const std::filesystem::path & originalIPAPath,
                                 const std::string & newIPAName,
-                                const boost::filesystem::path & newDestinationFolderPath,
+                                const std::filesystem::path & newDestinationFolderPath,
                                 bool wasInjected,
-                                boost::filesystem::path & outNewIPAPath)
+                                std::filesystem::path & outNewIPAPath)
 {
-    boost::filesystem::path newAppPath;
+    std::filesystem::path newAppPath;
     std::string newAppName;
     
     // Generating new ipa file name
@@ -60,7 +60,7 @@ int deploy_IPA(const boost::filesystem::path & inputIPAPath,
         ORGLOG_V((std::string)"Final ipa will have the name: " + newIPAName.c_str());
     } else {
         
-        boost::filesystem::path originalIPAfilename = originalIPAPath.filename();
+        std::filesystem::path originalIPAfilename = originalIPAPath.filename();
         newAppName = originalIPAfilename.string(); // In the simplest case this will be the final name
         
         if (wasInjected) {

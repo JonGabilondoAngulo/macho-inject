@@ -5,6 +5,7 @@
 //  Created by Jon Gabilondo on 28/02/2017.
 //
 
+#include <fstream>
 #include "system.hpp"
 
 
@@ -18,7 +19,7 @@
 std::string run_command (const std::string& commandToRun)
 {
     char fileLine[4096] = "";
-    boost::filesystem::path tempFileFullPath = boost::filesystem::temp_directory_path();
+    std::filesystem::path tempFileFullPath = std::filesystem::temp_directory_path();
     tempFileFullPath.append("mcTempFileForSystemCmd");
     std::string cmd = commandToRun + " >> " + tempFileFullPath.string();
     int err = std::system(cmd.c_str());

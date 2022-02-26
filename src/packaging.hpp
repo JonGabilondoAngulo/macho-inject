@@ -11,14 +11,14 @@
 #include <stdio.h>
 
 int unzip_ipa(const std::string argIpaPath,const std::string tempDirectory);
-int repack( const boost::filesystem::path & tempDirectoryPath,
-           boost::filesystem::path & outRepackedIPAPath);
-int deploy_IPA(const boost::filesystem::path & inputIPAPath,
-                                const boost::filesystem::path & originalIPAPath,
+int repack( const std::filesystem::path & tempDirectoryPath,
+           std::filesystem::path & outRepackedIPAPath);
+int deploy_IPA(const std::filesystem::path & inputIPAPath,
+                                const std::filesystem::path & originalIPAPath,
                                 const std::string & newIPAName,
-                                const boost::filesystem::path & newDestinationFolderPath,
+                                const std::filesystem::path & newDestinationFolderPath,
                                 bool wasInjected,
-                                boost::filesystem::path & outNewIPAPath);
+                                std::filesystem::path & outNewIPAPath);
 
 
 #endif /* packaging_hpp */

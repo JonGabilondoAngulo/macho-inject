@@ -35,10 +35,10 @@ const std::string sResourceRulesTemplate = "<?xml version=\"1.0\" encoding=\"UTF
 
 #pragma mark - Codesign functions
 
-bool codesign_binary(const boost::filesystem::path & appPath,
+bool codesign_binary(const std::filesystem::path & appPath,
                     const std::string& dllName,
-                    const boost::filesystem::path& certificateFilePath,
-                    const boost::filesystem::path& entitlementsFilePath)
+                    const std::filesystem::path& certificateFilePath,
+                    const std::filesystem::path& entitlementsFilePath)
 {
     bool result = false;
     
@@ -68,9 +68,9 @@ bool codesign_binary(const boost::filesystem::path & appPath,
     return result;
 }
 
-bool codesign_at_path(const boost::filesystem::path & appPath,
-                      const boost::filesystem::path&  certificateFilePath,
-                      const boost::filesystem::path&  entitlementsFilePath)
+bool codesign_at_path(const std::filesystem::path & appPath,
+                      const std::filesystem::path&  certificateFilePath,
+                      const std::filesystem::path&  entitlementsFilePath)
 {
     bool success = false;
     
@@ -104,7 +104,7 @@ bool codesign_at_path(const boost::filesystem::path & appPath,
     return success;
 }
 
-int remove_codesign(const boost::filesystem::path& appPath)
+int remove_codesign(const std::filesystem::path& appPath)
 {
     ORGLOG_V("Removing Code Signature");
     
@@ -119,7 +119,7 @@ int remove_codesign(const boost::filesystem::path& appPath)
 
 #pragma mark - Entitlements functions
 
-int remove_entitlements(const boost::filesystem::path& appPath)
+int remove_entitlements(const std::filesystem::path& appPath)
 {
     ORGLOG_V("Removing Entitlements");
     
@@ -133,8 +133,8 @@ int remove_entitlements(const boost::filesystem::path& appPath)
 }
 
 bool extract_entitlements_from_mobile_provision(const std::string& provisionFile,
-                                                boost::filesystem::path& outNewEntitlementsFile,
-                                                const boost::filesystem::path & tempDirPath)
+                                                std::filesystem::path& outNewEntitlementsFile,
+                                                const std::filesystem::path & tempDirPath)
 {
     bool success = false;
     
@@ -185,7 +185,7 @@ bool extract_entitlements_from_app(const std::string& appPath, std::string& newE
 
 #pragma mark - Provision functions
 
-int copy_provision_file(const boost::filesystem::path & appPath, const boost::filesystem::path& argProvision)
+int copy_provision_file(const std::filesystem::path & appPath, const std::filesystem::path& argProvision)
 {
     ORGLOG_V("Adding provision file to app");
     
@@ -203,8 +203,8 @@ int copy_provision_file(const boost::filesystem::path & appPath, const boost::fi
 std::string resource_rules_file(bool forceResRules,
                                 bool useOriginalResRules,
                                 bool useGenericResRules,
-                                const boost::filesystem::path & appPath,
-                                const boost::filesystem::path & tempDirPath)
+                                const std::filesystem::path & appPath,
+                                const std::filesystem::path & tempDirPath)
 {
     std::string resRulesFile;
     bool resRulesSet = false;
@@ -214,8 +214,8 @@ std::string resource_rules_file(bool forceResRules,
         // check if ResourceRules.plist is the App
         std::string pathToResourceRules = appPath.string() + "/" + "ResourceRules.plist";
         
-        boost::filesystem::path boostPathToResourceRules = boost::filesystem::path(pathToResourceRules);
-        if (boost::filesystem::exists(boostPathToResourceRules)) {
+        std::filesystem::path boostPathToResourceRules = std::filesystem::path(pathToResourceRules);
+        if (std::filesystem::exists(boostPathToResourceRules)) {
             ORGLOG_V("Codesign using original resource rules file :" << (std::string)pathToResourceRules);
             resRulesFile = pathToResourceRules;
             resRulesSet = true;
@@ -224,7 +224,7 @@ std::string resource_rules_file(bool forceResRules,
     if (resRulesSet == false) {
         if (forceResRules || useGenericResRules) {
             // Apply a generic res rules, create a local file with the template ResourceRulesTemplate
-            boost::filesystem::path resourceRulesFile = tempDirPath;
+            std::filesystem::path resourceRulesFile = tempDirPath;
             resourceRulesFile.append("ResourceRules.plist");
             
             if (createFile(resourceRulesFile, sResourceRulesTemplate, true)) {
@@ -238,7 +238,7 @@ std::string resource_rules_file(bool forceResRules,
 
 #pragma mark - Validation functions
 
-bool verify_app_correctness(const boost::filesystem::path& appPath, const std::string& dllName)
+bool verify_app_correctness(const std::filesystem::path& appPath, const std::string& dllName)
 {
     bool result = false;
     

@@ -12,12 +12,12 @@
 #define swap32(value) (((value & 0xFF000000) >> 24) | ((value & 0x00FF0000) >> 8) | ((value & 0x0000FF00) << 8) | ((value & 0x000000FF) << 24) )
 #define INJECT_BEFORE_CODE_SIGNATURE 1
 
-static int patch_binary(const boost::filesystem::path & binaryPath,
-                        const boost::filesystem::path & dllPath,
+static int patch_binary(const std::filesystem::path & binaryPath,
+                        const std::filesystem::path & dllPath,
                         bool isFramework,
                         bool remove_code_signature);
 
-int inj_inject_framework_into_app(const boost::filesystem::path &appPath, const boost::filesystem::path &frameworkPath, bool remove_code_signature)
+int inj_inject_framework_into_app(const std::filesystem::path &appPath, const std::filesystem::path &frameworkPath, bool remove_code_signature)
 {
     int err = noErr;
     const std::string QUOTE = "\"";
@@ -25,12 +25,12 @@ int inj_inject_framework_into_app(const boost::filesystem::path &appPath, const 
 
     ORGLOG("Injecting framework ...");
     
-    boost::filesystem::path frameworksFolderPath = appPath;
+    std::filesystem::path frameworksFolderPath = appPath;
     frameworksFolderPath.append("Contents/Frameworks");
     
     // Create destination folder.
-    if (boost::filesystem::exists(frameworksFolderPath) == false) {
-        if (!boost::filesystem::create_directory(frameworksFolderPath)) {
+    if (std::filesystem::exists(frameworksFolderPath) == false) {
+        if (!std::filesystem::create_directory(frameworksFolderPath)) {
             ORGLOG("Error creating Framework folder in the App: " << frameworksFolderPath);
             return ERR_General_Error;
         }
@@ -44,16 +44,16 @@ int inj_inject_framework_into_app(const boost::filesystem::path &appPath, const 
         return ERR_General_Error;
     }
     
-    boost::filesystem::path pathToInfoplist = appPath;
+    std::filesystem::path pathToInfoplist = appPath;
     pathToInfoplist.append("Contents/Info.plist");
     
     std::string binaryFileName = get_app_binary_file_name(pathToInfoplist);
     
     if (!binaryFileName.empty())  {
-        boost::filesystem::path pathToAppBinary = appPath / "Contents" / "MacOS";
+        std::filesystem::path pathToAppBinary = appPath / "Contents" / "MacOS";
         pathToAppBinary.append(binaryFileName);
         
-        if (boost::filesystem::exists(pathToAppBinary) == false) {
+        if (std::filesystem::exists(pathToAppBinary) == false) {
             ORGLOG("Could not find the binary file: " << pathToAppBinary);
             return ERR_General_Error;
         }
@@ -70,7 +70,7 @@ int inj_inject_framework_into_app(const boost::filesystem::path &appPath, const 
     return noErr;
 }
 
-void inj_inject_dylib(FILE* binaryFile, uint32_t top, const boost::filesystem::path& dylibPath, bool remove_code_signature)
+void inj_inject_dylib(FILE* binaryFile, uint32_t top, const std::filesystem::path& dylibPath, bool remove_code_signature)
 {
     
     // 1. Seek Slice start
@@ -159,19 +159,19 @@ void inj_inject_dylib(FILE* binaryFile, uint32_t top, const boost::filesystem::p
 #endif
 }
 
-int patch_binary(const boost::filesystem::path & binaryPath, const boost::filesystem::path & dllPath, bool isFramework, bool remove_code_signature)
+int patch_binary(const std::filesystem::path & binaryPath, const std::filesystem::path & dllPath, bool isFramework, bool remove_code_signature)
 {
     ORGLOG("Patching app binary ...");
     
-    boost::filesystem::path dllName = dllPath.filename();
-    boost::filesystem::path dylibPath;
+    std::filesystem::path dllName = dllPath.filename();
+    std::filesystem::path dylibPath;
     
     if (isFramework) {
-        boost::filesystem::path frameworkName = dllPath.filename();
-        boost::filesystem::path frameworkNameNoExt = dllPath.filename().replace_extension("");
-        dylibPath = boost::filesystem::path("@executable_path/../Frameworks").append(frameworkName.string()).append(frameworkNameNoExt.string());
+        std::filesystem::path frameworkName = dllPath.filename();
+        std::filesystem::path frameworkNameNoExt = dllPath.filename().replace_extension("");
+        dylibPath = std::filesystem::path("@executable_path/../Frameworks").append(frameworkName.string()).append(frameworkNameNoExt.string());
     } else {
-        dylibPath = boost::filesystem::path("@executable_path").append(dllName.string());
+        dylibPath = std::filesystem::path("@executable_path").append(dllName.string());
     }
     
     char buffer[4096];

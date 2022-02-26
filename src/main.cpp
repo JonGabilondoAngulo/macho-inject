@@ -25,18 +25,18 @@ bool forceResRules          = false;
 bool isIpaFile              = false;
 bool isAppFile              = false;
 
-boost::filesystem::path argTargetFilePath;
-boost::filesystem::path argFrameworkPath;
-boost::filesystem::path argCertificatePath;
-boost::filesystem::path argProvisionPath;
-boost::filesystem::path argEntitlementsPath;
-boost::filesystem::path argResourceRulesPath;
-boost::filesystem::path argDestinationPath;
-boost::filesystem::path argNewName;
-boost::filesystem::path repackedAppPath;
-boost::filesystem::path workingAppPath;
-boost::filesystem::path tempDirectoryPath;
-boost::filesystem::path tempDirectoryIPA;;
+std::filesystem::path argTargetFilePath;
+std::filesystem::path argFrameworkPath;
+std::filesystem::path argCertificatePath;
+std::filesystem::path argProvisionPath;
+std::filesystem::path argEntitlementsPath;
+std::filesystem::path argResourceRulesPath;
+std::filesystem::path argDestinationPath;
+std::filesystem::path argNewName;
+std::filesystem::path repackedAppPath;
+std::filesystem::path workingAppPath;
+std::filesystem::path tempDirectoryPath;
+std::filesystem::path tempDirectoryIPA;;
 
 static const std::string SPACE = " ";
 static const std::string QUOTE = "\"";
@@ -120,11 +120,11 @@ int check_arguments()
     if (!argTargetFilePath.empty()) {
         ORGLOG_V("App to patch: " << argTargetFilePath);
 
-        if (!boost::filesystem::exists(argTargetFilePath)) {
+        if (!std::filesystem::exists(argTargetFilePath)) {
             ORGLOG("Error: target file not found at: " << argTargetFilePath);
             return (ERR_Bad_Argument);
         }
-        boost::filesystem::path extension = argTargetFilePath.extension();
+        std::filesystem::path extension = argTargetFilePath.extension();
         if (extension != ".ipa" && extension != ".app") {
             ORGLOG("Error: target file must be .app or .ipa. File: " << argTargetFilePath);
             return (ERR_Bad_Argument);
@@ -140,7 +140,7 @@ int check_arguments()
     if (doInjectFramework) {
         ORGLOG_V("Framework to inject: " << argFrameworkPath);
 
-        if (!boost::filesystem::exists(argFrameworkPath)) {
+        if (!std::filesystem::exists(argFrameworkPath)) {
             ORGLOG("Framework file not found at: " << argFrameworkPath);
             return (ERR_Bad_Argument);
         }
@@ -149,13 +149,13 @@ int check_arguments()
     if (!argProvisionPath.empty()) {
         ORGLOG_V("Provision: " << argProvisionPath);
 
-        if (!boost::filesystem::exists(argProvisionPath)) {
+        if (!std::filesystem::exists(argProvisionPath)) {
             ORGLOG("Provision Profile not found at: " << argProvisionPath);
             return (ERR_Bad_Argument);
         }
     }
     
-    if (!argDestinationPath.empty() && !boost::filesystem::exists(argDestinationPath)) {
+    if (!argDestinationPath.empty() && !std::filesystem::exists(argDestinationPath)) {
         ORGLOG("Destination folder does not exist: " << argDestinationPath);
         return (ERR_Bad_Argument);
     }
@@ -188,7 +188,7 @@ int codesign_app()
     // Important entitlements info:
     // no entitlements provided in arguments, extract them from mobile provision
     // the provision file could be given in argument, if not extract it from the embeded.mobileprovision
-    boost::filesystem::path entitlementsFilePath;
+    std::filesystem::path entitlementsFilePath;
     
     if (copyEntitlements) {
         entitlementsFilePath = argEntitlementsPath;
@@ -221,14 +221,14 @@ int codesign_app()
     }
     
     // Codesigning extensions under plugins folder
-    boost::filesystem::path extensionsFolderPath = workingAppPath;
+    std::filesystem::path extensionsFolderPath = workingAppPath;
     extensionsFolderPath.append("Contents/PlugIns");
     if (codesign_at_path(extensionsFolderPath, argCertificatePath, entitlementsFilePath)) {
         ORGLOG_V("Plugins codesign sucessful!");
     }
     
     // Codesigning frameworks
-    boost::filesystem::path frameworksFolderPath = workingAppPath;
+    std::filesystem::path frameworksFolderPath = workingAppPath;
     frameworksFolderPath.append("Contents/Frameworks");
     if (codesign_at_path(frameworksFolderPath, argCertificatePath, entitlementsFilePath)) {
         ORGLOG_V("Frameworks codesign sucessful!");
@@ -253,10 +253,10 @@ int prepare_folders()
     int err = 0;
     
     // Create temp folder path
-    tempDirectoryPath = boost::filesystem::temp_directory_path() / "macho_inject";
+    tempDirectoryPath = std::filesystem::temp_directory_path() / "macho_inject";
 
     // Remove old temp if exist
-    if (boost::filesystem::exists(tempDirectoryPath)) {
+    if (std::filesystem::exists(tempDirectoryPath)) {
         std::string systemCmd = (std::string)"rm -rf " + tempDirectoryPath.string();
         err = system(systemCmd.c_str());
         if (err != noErr) {
@@ -268,7 +268,7 @@ int prepare_folders()
     // Remove old ipa
     tempDirectoryIPA = tempDirectoryPath;
     tempDirectoryIPA.replace_extension("ipa");
-    if (boost::filesystem::exists(tempDirectoryIPA)) {
+    if (std::filesystem::exists(tempDirectoryIPA)) {
         std::string systemCmd = (std::string)"rm -rf " + tempDirectoryIPA.string();
         err = system(systemCmd.c_str());
         if (err != noErr) {
@@ -289,8 +289,8 @@ int prepare_folders()
         // Create app path and app name
         std::string systemCmd = (std::string)"ls -d " + tempDirectoryPath.string() + "/Payload/*.app";
         std::string cmdResult = run_command(systemCmd);
-        boost::filesystem::path appName = boost::filesystem::path(cmdResult).filename();
-        boost::filesystem::path appNameWithoutExtension = boost::filesystem::path(cmdResult).filename().replace_extension("");
+        std::filesystem::path appName = std::filesystem::path(cmdResult).filename();
+        std::filesystem::path appNameWithoutExtension = std::filesystem::path(cmdResult).filename().replace_extension("");
         workingAppPath = tempDirectoryPath;
         workingAppPath.append("Payload").append(appName.string());
     } else if (isAppFile) {
@@ -317,7 +317,7 @@ int deploy_app_in_destination()
         if (err) {
             ORGLOG("Error. Failed to zip ipa.");
         } else {
-            boost::filesystem::path newAppPath;
+            std::filesystem::path newAppPath;
             int err = deploy_IPA(repackedAppPath, argTargetFilePath, argNewName.c_str(), argDestinationPath, doInjectFramework, newAppPath);
             if (err) {
                 ORGLOG("Failed to move the new ipa to destination: " << newAppPath);
@@ -328,7 +328,7 @@ int deploy_app_in_destination()
          }
     } else if (isAppFile) {
         if (!argDestinationPath.empty()) {
-            boost::filesystem::path finalAppPath;
+            std::filesystem::path finalAppPath;
             if (copy_app(workingAppPath, argDestinationPath, finalAppPath)) {
                 ORGLOG("New App path: " << finalAppPath);
                 ORGLOG("\nSUCCESS!");
@@ -382,20 +382,20 @@ int main(int argc, const char * argv[])
     
 CLEAN_EXIT:
     
-    if (boost::filesystem::exists(tempDirectoryPath)) {
-        if (!boost::filesystem::remove_all(tempDirectoryPath)) {
+    if (std::filesystem::exists(tempDirectoryPath)) {
+        if (!std::filesystem::remove_all(tempDirectoryPath)) {
             ORGLOG("Failed to delete temp folder on clean exit.");
         }
     }
     
-    if (boost::filesystem::exists(tempDirectoryIPA)) {
-        if (!boost::filesystem::remove_all(tempDirectoryIPA)) {
+    if (std::filesystem::exists(tempDirectoryIPA)) {
+        if (!std::filesystem::remove_all(tempDirectoryIPA)) {
             ORGLOG("Failed to delete temp IPA folder on clean exit.");
         }
     }
     
-    if (boost::filesystem::exists(repackedAppPath)) {
-        if (!boost::filesystem::remove(repackedAppPath)) {
+    if (std::filesystem::exists(repackedAppPath)) {
+        if (!std::filesystem::remove(repackedAppPath)) {
             ORGLOG("Failed to delete reapacked IPA file on clean exit.");
         }
     }

@@ -18,10 +18,9 @@
 		03221BE11F12280400039851 /* system.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BD41F12280400039851 /* system.cpp */; };
 		03221BE21F12280400039851 /* version.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BD61F12280400039851 /* version.cpp */; };
 		03221BE51F1233D600039851 /* plist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BE31F1233D600039851 /* plist.cpp */; };
-		036B64211E6462B6000991FD /* libboost_program_options.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 036B64201E6462B6000991FD /* libboost_program_options.a */; };
-		036B64241E6462C6000991FD /* libboost_filesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 036B64221E6462C6000991FD /* libboost_filesystem.a */; };
-		036B64251E6462C6000991FD /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 036B64231E6462C6000991FD /* libboost_system.a */; };
 		039B700B269899F80091B2CE /* copy_folder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BC61F12280400039851 /* copy_folder.cpp */; };
+		03FFB24427CAD365003D3CA8 /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 03FFB24227CAD365003D3CA8 /* libboost_system.a */; };
+		03FFB24527CAD365003D3CA8 /* libboost_program_options.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 03FFB24327CAD365003D3CA8 /* libboost_program_options.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -61,10 +60,9 @@
 		03221BD71F12280400039851 /* version.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = version.hpp; path = src/version.hpp; sourceTree = "<group>"; };
 		03221BE31F1233D600039851 /* plist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = plist.cpp; path = src/plist.cpp; sourceTree = "<group>"; };
 		03221BE41F1233D600039851 /* plist.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = plist.hpp; path = src/plist.hpp; sourceTree = "<group>"; };
-		036B64201E6462B6000991FD /* libboost_program_options.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_program_options.a; path = third_party/boost/stage/lib/libboost_program_options.a; sourceTree = SOURCE_ROOT; };
-		036B64221E6462C6000991FD /* libboost_filesystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_filesystem.a; path = third_party/boost/stage/lib/libboost_filesystem.a; sourceTree = SOURCE_ROOT; };
-		036B64231E6462C6000991FD /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = third_party/boost/stage/lib/libboost_system.a; sourceTree = SOURCE_ROOT; };
 		0373D0CE19D99D5400754E1D /* macho_inject */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = macho_inject; sourceTree = BUILT_PRODUCTS_DIR; };
+		03FFB24227CAD365003D3CA8 /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = third_party/boost_1_78_0/stage/lib/libboost_system.a; sourceTree = "<group>"; };
+		03FFB24327CAD365003D3CA8 /* libboost_program_options.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_program_options.a; path = third_party/boost_1_78_0/stage/lib/libboost_program_options.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,9 +70,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				036B64211E6462B6000991FD /* libboost_program_options.a in Frameworks */,
-				036B64251E6462C6000991FD /* libboost_system.a in Frameworks */,
-				036B64241E6462C6000991FD /* libboost_filesystem.a in Frameworks */,
+				03FFB24427CAD365003D3CA8 /* libboost_system.a in Frameworks */,
+				03FFB24527CAD365003D3CA8 /* libboost_program_options.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -92,6 +89,8 @@
 			isa = PBXGroup;
 			children = (
 				03221BCF1F12280400039851 /* main.cpp */,
+				03221BD01F12280400039851 /* cmd_options.cpp */,
+				03221BD11F12280400039851 /* cmd_options.hpp */,
 				03221BC21F12280400039851 /* codesign.cpp */,
 				03221BC31F12280400039851 /* codesign.hpp */,
 				03221BC41F12280400039851 /* constants.cpp */,
@@ -105,8 +104,6 @@
 				03221BCC1F12280400039851 /* injection.cpp */,
 				03221BCD1F12280400039851 /* injection.hpp */,
 				03221BCE1F12280400039851 /* macho_headers.h */,
-				03221BD01F12280400039851 /* cmd_options.cpp */,
-				03221BD11F12280400039851 /* cmd_options.hpp */,
 				03221BD21F12280400039851 /* packaging.cpp */,
 				03221BD31F12280400039851 /* packaging.hpp */,
 				03221BE31F1233D600039851 /* plist.cpp */,
@@ -122,9 +119,8 @@
 		036B64261E646DF2000991FD /* Libs */ = {
 			isa = PBXGroup;
 			children = (
-				036B64201E6462B6000991FD /* libboost_program_options.a */,
-				036B64221E6462C6000991FD /* libboost_filesystem.a */,
-				036B64231E6462C6000991FD /* libboost_system.a */,
+				03FFB24327CAD365003D3CA8 /* libboost_program_options.a */,
+				03FFB24227CAD365003D3CA8 /* libboost_system.a */,
 			);
 			name = Libs;
 			sourceTree = "<group>";
@@ -292,11 +288,12 @@
 		0373D0D819D99D5400754E1D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				GCC_PREFIX_HEADER = src/Headers.pch;
-				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/third_party/boost\"";
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/third_party/boost_1_78_0\"";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/third_party/boost/stage/lib",
+					"$(PROJECT_DIR)/third_party/boost_1_78_0/stage/lib",
 					"$(PROJECT_DIR)",
 					/usr/local/lib,
 				);
@@ -310,11 +307,12 @@
 		0373D0D919D99D5400754E1D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				GCC_PREFIX_HEADER = src/Headers.pch;
-				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/third_party/boost\"";
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/third_party/boost_1_78_0\"";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/third_party/boost/stage/lib",
+					"$(PROJECT_DIR)/third_party/boost_1_78_0/stage/lib",
 					"$(PROJECT_DIR)",
 					/usr/local/lib,
 				);
