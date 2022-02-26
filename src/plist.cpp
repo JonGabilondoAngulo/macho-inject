@@ -93,7 +93,7 @@ void buffer_write_to_file(const char *filename, const char *buffer, uint64_t len
 }
 
 
-std::string get_app_binary_file_name(const boost::filesystem::path& infoPlistPath)
+std::string get_app_binary_file_name(const std::filesystem::path& infoPlistPath)
 {
     plist_t pl = NULL;
     

@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 
-bool copy_app(const boost::filesystem::path &appPath,  const boost::filesystem::path &destinationPath, boost::filesystem::path &finalAppPath);
-bool copy_bundle(const boost::filesystem::path &bundlePath,  const boost::filesystem::path &destinationPath);
+bool copy_app(const std::filesystem::path &appPath,  const std::filesystem::path &destinationPath, std::filesystem::path &finalAppPath);
+bool copy_bundle(const std::filesystem::path &bundlePath,  const std::filesystem::path &destinationPath);
 
 #endif

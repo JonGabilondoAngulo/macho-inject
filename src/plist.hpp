@@ -21,6 +21,6 @@ int plist_write_to_file(plist_t plist, const char *filename, enum plist_format_t
 void buffer_read_from_file(const char *filename, char **buffer, uint32_t *length);
 int plist_read_from_file(plist_t *plist, const char *filename);
 
-std::string get_app_binary_file_name(const boost::filesystem::path& infoPlistPath);
+std::string get_app_binary_file_name(const std::filesystem::path& infoPlistPath);
 
 #endif /* plist_hpp */
