@@ -118,6 +118,8 @@ int parse_options(int argc, const char * argv[])
 int check_arguments()
 {
     if (!argTargetFilePath.empty()) {
+        ORGLOG_V("App to patch: " << argTargetFilePath);
+
         if (!boost::filesystem::exists(argTargetFilePath)) {
             ORGLOG("Error: target file not found at: " << argTargetFilePath);
             return (ERR_Bad_Argument);
@@ -136,6 +138,8 @@ int check_arguments()
     }
     
     if (doInjectFramework) {
+        ORGLOG_V("Framework to inject: " << argFrameworkPath);
+
         if (!boost::filesystem::exists(argFrameworkPath)) {
             ORGLOG("Framework file not found at: " << argFrameworkPath);
             return (ERR_Bad_Argument);
@@ -143,6 +147,8 @@ int check_arguments()
     }
     
     if (!argProvisionPath.empty()) {
+        ORGLOG_V("Provision: " << argProvisionPath);
+
         if (!boost::filesystem::exists(argProvisionPath)) {
             ORGLOG("Provision Profile not found at: " << argProvisionPath);
             return (ERR_Bad_Argument);
@@ -359,7 +365,8 @@ int main(int argc, const char * argv[])
 
 
     if (doInjectFramework) {
-        err = inj_inject_framework_into_app(workingAppPath, argFrameworkPath);
+        bool removeSignatureInfo = !doCodesign;
+        err = inj_inject_framework_into_app(workingAppPath, argFrameworkPath, removeSignatureInfo);
         if (err != noErr)
             goto CLEAN_EXIT;
     }

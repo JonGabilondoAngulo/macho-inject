@@ -53,11 +53,11 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "-v"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--sign &quot;Developer ID Application: Jon Gabilondo (NRRF7234ZC)&quot;"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--inject-framework /Users/jongabilondo/Desktop/FaceTime/Organismo-mac.framework"
@@ -69,6 +69,10 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/jongabilondo/Desktop/FaceTime/FaceTime.app"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/jongabilondo/Desktop/FaceTime/Calculator.app"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
