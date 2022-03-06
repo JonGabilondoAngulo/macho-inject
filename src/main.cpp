@@ -17,7 +17,7 @@ bool doCodesign             = false;
 bool copyEntitlements       = false;
 bool useResourceRules       = false;
 bool removeEntitlements     = false;
-bool removeCodeSignature    = false;
+bool removeSignature        = false;
 bool createNewUrlScheme     = true;
 bool useOriginalResRules    = false;
 bool useGenericResRules     = false;
@@ -77,6 +77,9 @@ int parse_options(int argc, const char * argv[])
         argCertificatePath = vm["sign"].as<std::string>();
         doCodesign = true;
     }
+    if (vm.count("remove-signature")) {
+        removeSignature = true;
+    }
     if (vm.count("provision")) {
         argProvisionPath = vm["provision"].as<std::string>();
     }
@@ -109,8 +112,8 @@ int parse_options(int argc, const char * argv[])
     if (vm.count("remove-entitlements")) {
         removeEntitlements = true;
     }
-    if (vm.count("remove-code-signature")) {
-        removeCodeSignature = true;
+    if (vm.count("remove-signature")) {
+        removeSignature = true;
     }
     return err;
 }
@@ -169,21 +172,21 @@ int codesign_app()
     ORGLOG("Codesigning the app ...");
     
     if (!argProvisionPath.empty()) {
-        err = copy_provision_file(workingAppPath, argProvisionPath);
+        err = codesign_copy_provision_file(workingAppPath, argProvisionPath);
         if (err) {
             return ERR_General_Error;
         }
     }
     
     if (removeEntitlements) {
-        err = remove_entitlements(workingAppPath);
+        err = codesign_remove_entitlements(workingAppPath);
     }
     
-    if (removeCodeSignature) {
-        err = remove_codesign(workingAppPath);
+    if (removeSignature) {
+        err = codesign_remove_signature(workingAppPath);
     }
     
-    std::string systemCmd = (std::string)"/usr/bin/codesign --deep --force -s '" + (std::string)argCertificatePath.c_str() + (std::string)"' ";
+    std::string systemCmd = (std::string)"/usr/bin/codesign --force -s '" + (std::string)argCertificatePath.c_str() + (std::string)"' ";
     
     // Important entitlements info:
     // no entitlements provided in arguments, extract them from mobile provision
@@ -204,18 +207,18 @@ int codesign_app()
     if (useResourceRules) {
         resRulesFile = argResourceRulesPath.c_str();
     } else {
-        resRulesFile = resource_rules_file(forceResRules, useOriginalResRules, useGenericResRules, workingAppPath, tempDirectoryPath);
+        resRulesFile = codesign_resource_rules_file(forceResRules, useOriginalResRules, useGenericResRules, workingAppPath, tempDirectoryPath);
     }
     
-    if (resRulesFile.length()) {
+    if (!resRulesFile.empty()) {
         ORGLOG_V("Codesign using resource rules file :" << (std::string)resRulesFile);
         systemCmd += (std::string)" --resource-rules='" + resRulesFile + "'";
     }
     
     systemCmd += " \"" + workingAppPath.string() + "\"";
     
-    // Codesign dylibs
-    if (!codesign_at_path(workingAppPath, argCertificatePath, entitlementsFilePath)) {
+    // Codesign dylibs at the first level
+    if (!codesign_binaries_in_folder(workingAppPath, argCertificatePath, entitlementsFilePath)) {
         err = ERR_Dylib_Codesign_Failed;
         ORGLOG("Codesigning one or more dylibs failed");
     }
@@ -223,17 +226,35 @@ int codesign_app()
     // Codesigning extensions under plugins folder
     std::filesystem::path extensionsFolderPath = workingAppPath;
     extensionsFolderPath.append("Contents/PlugIns");
-    if (codesign_at_path(extensionsFolderPath, argCertificatePath, entitlementsFilePath)) {
+    if (codesign_binaries_in_folder(extensionsFolderPath, argCertificatePath, entitlementsFilePath)) {
         ORGLOG_V("Plugins codesign sucessful!");
     }
     
     // Codesigning frameworks
     std::filesystem::path frameworksFolderPath = workingAppPath;
     frameworksFolderPath.append("Contents/Frameworks");
-    if (codesign_at_path(frameworksFolderPath, argCertificatePath, entitlementsFilePath)) {
+    if (codesign_binaries_in_folder(frameworksFolderPath, argCertificatePath, entitlementsFilePath)) {
         ORGLOG_V("Frameworks codesign sucessful!");
     }
-    
+
+    frameworksFolderPath = workingAppPath;
+    frameworksFolderPath.append("Contents/SystemFrameworks");
+    if (codesign_binaries_in_folder(frameworksFolderPath, argCertificatePath, entitlementsFilePath)) {
+        ORGLOG_V("SystemFrameworks codesign sucessful!");
+    }
+
+    frameworksFolderPath = workingAppPath;
+    frameworksFolderPath.append("Contents/OtherFrameworks");
+    if (codesign_binaries_in_folder(frameworksFolderPath, argCertificatePath, entitlementsFilePath)) {
+        ORGLOG_V("OtherFrameworks codesign sucessful!");
+    }
+
+    frameworksFolderPath = workingAppPath;
+    frameworksFolderPath.append("Contents/XPCServices");
+    if (codesign_binaries_in_folder(frameworksFolderPath, argCertificatePath, entitlementsFilePath)) {
+        ORGLOG_V("XPCServices codesign sucessful!");
+    }
+
     if (!silenceCmdOutput.empty()) {
         systemCmd += SPACE + silenceCmdOutput;
     }
@@ -256,6 +277,7 @@ int prepare_folders()
     tempDirectoryPath = std::filesystem::temp_directory_path() / "macho_inject";
 
     // Remove old temp if exist
+    ORGLOG_V("Cleaning temp folders ...");
     if (std::filesystem::exists(tempDirectoryPath)) {
         std::string systemCmd = (std::string)"rm -rf " + tempDirectoryPath.string();
         err = system(systemCmd.c_str());
@@ -294,6 +316,7 @@ int prepare_folders()
         workingAppPath = tempDirectoryPath;
         workingAppPath.append("Payload").append(appName.string());
     } else if (isAppFile) {
+        ORGLOG_V("Copying App to temp working folder ...");
         if (!copy_bundle(argTargetFilePath, tempDirectoryPath)) {
             ORGLOG("Error: Failed copying target file to temp folder.: " << workingAppPath);
             return (ERR_General_Error);
@@ -328,6 +351,7 @@ int deploy_app_in_destination()
          }
     } else if (isAppFile) {
         if (!argDestinationPath.empty()) {
+            ORGLOG_V("Copying injected App to destination folder ...");
             std::filesystem::path finalAppPath;
             if (copy_app(workingAppPath, argDestinationPath, finalAppPath)) {
                 ORGLOG("New App path: " << finalAppPath);
@@ -365,8 +389,7 @@ int main(int argc, const char * argv[])
 
 
     if (doInjectFramework) {
-        bool removeSignatureInfo = !doCodesign;
-        err = inj_inject_framework_into_app(workingAppPath, argFrameworkPath, removeSignatureInfo);
+        err = inj_inject_framework_into_app(workingAppPath, argFrameworkPath, removeSignature);
         if (err != noErr)
             goto CLEAN_EXIT;
     }

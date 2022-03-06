@@ -18,6 +18,7 @@
 		03221BE11F12280400039851 /* system.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BD41F12280400039851 /* system.cpp */; };
 		03221BE21F12280400039851 /* version.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BD61F12280400039851 /* version.cpp */; };
 		03221BE51F1233D600039851 /* plist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BE31F1233D600039851 /* plist.cpp */; };
+		0343853E27CD764A00DA3604 /* signature.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0343853C27CD764A00DA3604 /* signature.cpp */; };
 		039B700B269899F80091B2CE /* copy_folder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BC61F12280400039851 /* copy_folder.cpp */; };
 		03FFB24427CAD365003D3CA8 /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 03FFB24227CAD365003D3CA8 /* libboost_system.a */; };
 		03FFB24527CAD365003D3CA8 /* libboost_program_options.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 03FFB24327CAD365003D3CA8 /* libboost_program_options.a */; };
@@ -60,6 +61,8 @@
 		03221BD71F12280400039851 /* version.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = version.hpp; path = src/version.hpp; sourceTree = "<group>"; };
 		03221BE31F1233D600039851 /* plist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = plist.cpp; path = src/plist.cpp; sourceTree = "<group>"; };
 		03221BE41F1233D600039851 /* plist.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = plist.hpp; path = src/plist.hpp; sourceTree = "<group>"; };
+		0343853C27CD764A00DA3604 /* signature.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = signature.cpp; path = src/signature.cpp; sourceTree = "<group>"; };
+		0343853D27CD764A00DA3604 /* signature.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = signature.hpp; path = src/signature.hpp; sourceTree = "<group>"; };
 		0373D0CE19D99D5400754E1D /* macho_inject */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = macho_inject; sourceTree = BUILT_PRODUCTS_DIR; };
 		03FFB24227CAD365003D3CA8 /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = third_party/boost_1_78_0/stage/lib/libboost_system.a; sourceTree = "<group>"; };
 		03FFB24327CAD365003D3CA8 /* libboost_program_options.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_program_options.a; path = third_party/boost_1_78_0/stage/lib/libboost_program_options.a; sourceTree = "<group>"; };
@@ -100,7 +103,6 @@
 				03221BC81F12280400039851 /* error_codes.cpp */,
 				03221BC91F12280400039851 /* file.cpp */,
 				03221BCA1F12280400039851 /* file.hpp */,
-				03221BCB1F12280400039851 /* Headers.pch */,
 				03221BCC1F12280400039851 /* injection.cpp */,
 				03221BCD1F12280400039851 /* injection.hpp */,
 				03221BCE1F12280400039851 /* macho_headers.h */,
@@ -108,12 +110,22 @@
 				03221BD31F12280400039851 /* packaging.hpp */,
 				03221BE31F1233D600039851 /* plist.cpp */,
 				03221BE41F1233D600039851 /* plist.hpp */,
+				0343853C27CD764A00DA3604 /* signature.cpp */,
+				0343853D27CD764A00DA3604 /* signature.hpp */,
 				03221BD41F12280400039851 /* system.cpp */,
 				03221BD51F12280400039851 /* system.hpp */,
 				03221BD61F12280400039851 /* version.cpp */,
 				03221BD71F12280400039851 /* version.hpp */,
 			);
 			name = Source;
+			sourceTree = "<group>";
+		};
+		0343853B27CD74D400DA3604 /* Supporting files */ = {
+			isa = PBXGroup;
+			children = (
+				03221BCB1F12280400039851 /* Headers.pch */,
+			);
+			name = "Supporting files";
 			sourceTree = "<group>";
 		};
 		036B64261E646DF2000991FD /* Libs */ = {
@@ -129,6 +141,7 @@
 			isa = PBXGroup;
 			children = (
 				03221BC11F1227ED00039851 /* Source */,
+				0343853B27CD74D400DA3604 /* Supporting files */,
 				036B64261E646DF2000991FD /* Libs */,
 				0373D0CF19D99D5400754E1D /* Products */,
 				031F2C431E65AEAA002C2898 /* Frameworks */,
@@ -204,6 +217,7 @@
 				03221BDD1F12280400039851 /* injection.cpp in Sources */,
 				03221BE11F12280400039851 /* system.cpp in Sources */,
 				03221BDE1F12280400039851 /* main.cpp in Sources */,
+				0343853E27CD764A00DA3604 /* signature.cpp in Sources */,
 				03221BDC1F12280400039851 /* file.cpp in Sources */,
 				039B700B269899F80091B2CE /* copy_folder.cpp in Sources */,
 				03221BDB1F12280400039851 /* error_codes.cpp in Sources */,

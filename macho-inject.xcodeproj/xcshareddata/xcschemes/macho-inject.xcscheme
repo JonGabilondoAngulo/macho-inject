@@ -57,6 +57,10 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--sign &quot;Developer ID Application: Jon Gabilondo (NRRF7234ZC)&quot;"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--sign &quot;Apple Development: Jon Gabilondo (HSU5NU9LMR)&quot;"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
@@ -73,6 +77,10 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/jongabilondo/Desktop/FaceTime/Calculator.app"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/jongabilondo/Desktop/FaceTime/Xcode.app"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

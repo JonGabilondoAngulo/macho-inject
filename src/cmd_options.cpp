@@ -22,7 +22,7 @@ int cmd_opt_add_descriptions(boost::program_options::options_description & descr
     ("generic-res-rules", "Apply a generic Resouces Rules definition. In case the codesign fails due to problems with the resources try this option. A generic template will be used.")
     ("force-res-rules", "It will try as if parameters --original-res-rules was set, if no original rules found it will be as if parameter --generic-res-rules defined.")
     ("remove-entitlements", "Remove entitlements file from App.")
-    ("remove-code-signature", "Remove code signature folder '_CodeSignature' from App.")
+    ("remove-signature", "Remove code signature from binary and '_CodeSignature' folder.")
     ("verbose,v", "Verbose.")
     ("version,V", "Print version.")
     ("input-file,i", boost::program_options::value< std::string >(), "Full path to the file App/IPA file to operate on.")
