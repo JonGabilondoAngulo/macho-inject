@@ -155,7 +155,8 @@ void inj_inject_dylib(FILE* binaryFile, uint32_t top, const std::filesystem::pat
         bytes = fwrite(&lc_code_signature, sizeof(struct linkedit_data_command), 1, binaryFile); // write the dylib load string
         if (bytes==0) {
             ORGLOG_V("ERROR writing LC_CODE_SIGNATURE to load commands.");
-        }    }
+        }
+    }
 
 #endif
 }

@@ -35,15 +35,15 @@ const std::string sResourceRulesTemplate = "<?xml version=\"1.0\" encoding=\"UTF
 
 #pragma mark - Codesign functions
 
-bool codesign_binary(const std::filesystem::path & appPath,
-                    const std::string& dllName,
-                    const std::filesystem::path& certificateFilePath,
-                    const std::filesystem::path& entitlementsFilePath)
+bool codesign_fs_object(const std::filesystem::path &folderPath,
+                        const std::string &fsObjectName,
+                        const std::filesystem::path &certificateFilePath,
+                        const std::filesystem::path &entitlementsFilePath)
 {
     bool result = false;
     
-    if (certificateFilePath.string().length() && appPath.string().length() && dllName.length()) {
-        std::string systemCmd = (std::string)"/usr/bin/codesign -f -s '" + certificateFilePath.string() + "'" + silenceCmdOutput;
+    if (!certificateFilePath.string().empty() && !folderPath.string().empty() && !fsObjectName.empty()) {
+        std::string systemCmd = (std::string)"/usr/bin/codesign -f --deep -s '" + certificateFilePath.string() + "'" + silenceCmdOutput;
         
         // add entitlements to cmd
         if (entitlementsFilePath.string().length()) {
@@ -53,29 +53,29 @@ bool codesign_binary(const std::filesystem::path & appPath,
         }
         
         // add dllpath to cmd
-        systemCmd += " \"" + appPath.string() + "/" + dllName + "\"";
+        systemCmd += " \"" + folderPath.string() + "/" + fsObjectName + "\"";
         
         int err = system(systemCmd.c_str());
         result = err==noErr;
         
         if (result) {
-            ORGLOG_V("Success signing: " << (appPath / dllName));
+            ORGLOG_V("Success signing: " << (folderPath / fsObjectName));
         } else {
-            ORGLOG_V("Error. Failed to sign: " << (appPath / dllName));
+            ORGLOG_V("Error. Failed to sign: " << (folderPath / fsObjectName));
         }
     }
     
     return result;
 }
 
-bool codesign_at_path(const std::filesystem::path & appPath,
-                      const std::filesystem::path&  certificateFilePath,
-                      const std::filesystem::path&  entitlementsFilePath)
+bool codesign_binaries_in_folder(const std::filesystem::path &folderPath,
+                                 const std::filesystem::path &certificateFilePath,
+                                 const std::filesystem::path &entitlementsFilePath)
 {
     bool success = false;
     
     // Opening directory stream to app path
-    DIR* dirFile = opendir(appPath.c_str());
+    DIR* dirFile = opendir(folderPath.c_str());
     if (dirFile)
     {
         // Iterating over all files in app's path
@@ -86,11 +86,16 @@ bool codesign_at_path(const std::filesystem::path & appPath,
             if (!strcmp(aFile->d_name, ".")) continue;
             if (!strcmp(aFile->d_name, "..")) continue;
             
-            // Checking if file extension is 'dylib' OR 'framework'
-            if (strstr(aFile->d_name, ".dylib") || strstr(aFile->d_name, ".framework") || strstr(aFile->d_name, ".appex")){
+            std::filesystem::path extension = std::filesystem::path(aFile->d_name).extension();
+            
+            // Checking if file extension
+            if (extension == ".dylib" ||
+                extension == ".framework" ||
+                extension == ".xpc" ||
+                strstr(extension.c_str(), "plugin") ||  // .*plugin
+                extension == ".appex") {
                 
-                // Found .dylib file, codesigning it
-                codesign_binary(appPath, aFile->d_name, certificateFilePath, entitlementsFilePath);
+                codesign_fs_object(folderPath, aFile->d_name, certificateFilePath, entitlementsFilePath);
             }
         }
         
@@ -104,7 +109,7 @@ bool codesign_at_path(const std::filesystem::path & appPath,
     return success;
 }
 
-int remove_codesign(const std::filesystem::path& appPath)
+int codesign_remove_signature(const std::filesystem::path &appPath)
 {
     ORGLOG_V("Removing Code Signature");
     
@@ -112,14 +117,15 @@ int remove_codesign(const std::filesystem::path& appPath)
     std::string pathToCodeSignature = appPath.string() + "/_CodeSignature";
     std::string systemCmd = (std::string)"rm -rf '" + (std::string)pathToCodeSignature + (std::string)"'";
     err = system((const char*)systemCmd.c_str());
-    if(err)std::cout << "Error: Failed to remove codesignature file.\n";
+    if(err)
+        std::cout << "Error: Failed to remove codesignature file.\n";
     
     return err;
 }
 
 #pragma mark - Entitlements functions
 
-int remove_entitlements(const std::filesystem::path& appPath)
+int codesign_remove_entitlements(const std::filesystem::path &appPath)
 {
     ORGLOG_V("Removing Entitlements");
     
@@ -127,14 +133,15 @@ int remove_entitlements(const std::filesystem::path& appPath)
     std::string pathToEntitlements = appPath.string() + "/Entitlements.plist";
     std::string systemCmd = (std::string)"rm '" + (std::string)pathToEntitlements + (std::string)"'";
     err = system((const char*)systemCmd.c_str());
-    if (err)std::cout << "Error: Failed to remove entitlements file.\n";
+    if (err)
+        std::cout << "Error: Failed to remove entitlements file.\n";
     
     return  err;
 }
 
-bool extract_entitlements_from_mobile_provision(const std::string& provisionFile,
-                                                std::filesystem::path& outNewEntitlementsFile,
-                                                const std::filesystem::path & tempDirPath)
+bool codesign_extract_entitlements_from_mobile_provision(const std::string &provisionFile,
+                                                std::filesystem::path & utNewEntitlementsFile,
+                                                const std::filesystem::path &tempDirPath)
 {
     bool success = false;
     
@@ -164,7 +171,7 @@ bool extract_entitlements_from_mobile_provision(const std::string& provisionFile
     return success;
 }
 
-bool extract_entitlements_from_app(const std::string& appPath, std::string& newEntitlementsFile, const std::string& tempDirPath)
+bool codesign_extract_entitlements_from_app(const std::string &appPath, std::string &newEntitlementsFile, const std::string &tempDirPath)
 {
     bool success = false;
     
@@ -185,7 +192,7 @@ bool extract_entitlements_from_app(const std::string& appPath, std::string& newE
 
 #pragma mark - Provision functions
 
-int copy_provision_file(const std::filesystem::path & appPath, const std::filesystem::path& argProvision)
+int codesign_copy_provision_file(const std::filesystem::path &appPath, const std::filesystem::path &argProvision)
 {
     ORGLOG_V("Adding provision file to app");
     
@@ -200,11 +207,11 @@ int copy_provision_file(const std::filesystem::path & appPath, const std::filesy
 
 #pragma mark - Resource rules functions
 
-std::string resource_rules_file(bool forceResRules,
+std::string codesign_resource_rules_file(bool forceResRules,
                                 bool useOriginalResRules,
                                 bool useGenericResRules,
-                                const std::filesystem::path & appPath,
-                                const std::filesystem::path & tempDirPath)
+                                const std::filesystem::path &appPath,
+                                const std::filesystem::path &tempDirPath)
 {
     std::string resRulesFile;
     bool resRulesSet = false;
@@ -238,7 +245,7 @@ std::string resource_rules_file(bool forceResRules,
 
 #pragma mark - Validation functions
 
-bool verify_app_correctness(const std::filesystem::path& appPath, const std::string& dllName)
+bool codesign_verify_app_correctness(const std::filesystem::path &appPath, const std::string &dllName)
 {
     bool result = false;
     
@@ -252,7 +259,7 @@ bool verify_app_correctness(const std::filesystem::path& appPath, const std::str
     ORGLOG("Validating team identifiers");
     ORGLOG_V("App " << cmdResult1 << "DYLIB " <<  cmdResult2);
     
-    result = (cmdResult2!="TeamIdentifier=not set" && cmdResult1.length() && cmdResult2.length() && cmdResult1==cmdResult2);
+    result = (cmdResult2!="TeamIdentifier=not set" && !cmdResult1.empty() && !cmdResult2.empty() && cmdResult1==cmdResult2);
     
     return result;
 }
