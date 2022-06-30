@@ -140,7 +140,7 @@ int codesign_remove_entitlements(const std::filesystem::path &appPath)
 }
 
 bool codesign_extract_entitlements_from_mobile_provision(const std::string &provisionFile,
-                                                std::filesystem::path & utNewEntitlementsFile,
+                                                std::filesystem::path & outNewEntitlementsFile,
                                                 const std::filesystem::path &tempDirPath)
 {
     bool success = false;
