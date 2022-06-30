@@ -56,8 +56,12 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--sign &quot;Developer ID Application: Jon Gabilondo (NRRF7234ZC)&quot;"
+            argument = "--remove-signature"
             isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--sign &quot;Developer ID Application: Jon Gabilondo (NRRF7234ZC)&quot;"
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--sign &quot;Apple Development: Jon Gabilondo (HSU5NU9LMR)&quot;"
@@ -77,11 +81,11 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/jongabilondo/Desktop/FaceTime/Calculator.app"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/jongabilondo/Desktop/FaceTime/Xcode.app"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
