@@ -1,0 +1,46 @@
+{
+  "homebrew_version": "2.5.10-18-ge945b1c",
+  "used_options": [
+
+  ],
+  "unused_options": [
+
+  ],
+  "built_as_bottle": true,
+  "poured_from_bottle": true,
+  "installed_as_dependency": false,
+  "installed_on_request": true,
+  "changed_files": [
+    "lib/pkgconfig/libplist++-2.0.pc",
+    "lib/pkgconfig/libplist-2.0.pc"
+  ],
+  "time": 1656671921,
+  "source_modified_time": 1592245171,
+  "stdlib": "libcxx",
+  "compiler": "clang",
+  "aliases": [
+
+  ],
+  "runtime_dependencies": [
+
+  ],
+  "source": {
+    "spec": "stable",
+    "versions": {
+      "stable": "2.2.0",
+      "head": null,
+      "version_scheme": 0
+    },
+    "path": "/usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/libplist.rb",
+    "tap_git_head": "aa1bbde6150233e8cb5c7c632e0d4d283cf4e0b3",
+    "tap": "homebrew/core"
+  },
+  "arch": "x86_64",
+  "built_on": {
+    "os": "Macintosh",
+    "os_version": "macOS 11.0.1",
+    "cpu_family": "penryn",
+    "xcode": "12.2",
+    "clt": "12.2.0.0.1.1604076827"
+  }
+}

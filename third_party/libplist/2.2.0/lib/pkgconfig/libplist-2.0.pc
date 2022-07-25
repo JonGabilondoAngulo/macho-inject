@@ -1,0 +1,10 @@
+prefix=/usr/local/Cellar/libplist/2.2.0
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libplist
+Description: A library to handle Apple Property Lists whereas they are binary or XML
+Version: 2.2.0
+Libs: -L${libdir} -lplist-2.0
+Cflags: -I${includedir}

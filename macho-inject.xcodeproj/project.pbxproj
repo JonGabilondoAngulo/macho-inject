@@ -19,6 +19,7 @@
 		03221BE21F12280400039851 /* version.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BD61F12280400039851 /* version.cpp */; };
 		03221BE51F1233D600039851 /* plist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BE31F1233D600039851 /* plist.cpp */; };
 		0343853E27CD764A00DA3604 /* signature.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0343853C27CD764A00DA3604 /* signature.cpp */; };
+		036AC179288EEAD6008C1E2D /* libplist-2.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 036AC178288EEAD2008C1E2D /* libplist-2.0.a */; };
 		039B700B269899F80091B2CE /* copy_folder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03221BC61F12280400039851 /* copy_folder.cpp */; };
 		03FFB24427CAD365003D3CA8 /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 03FFB24227CAD365003D3CA8 /* libboost_system.a */; };
 		03FFB24527CAD365003D3CA8 /* libboost_program_options.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 03FFB24327CAD365003D3CA8 /* libboost_program_options.a */; };
@@ -63,6 +64,8 @@
 		03221BE41F1233D600039851 /* plist.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = plist.hpp; path = src/plist.hpp; sourceTree = "<group>"; };
 		0343853C27CD764A00DA3604 /* signature.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = signature.cpp; path = src/signature.cpp; sourceTree = "<group>"; };
 		0343853D27CD764A00DA3604 /* signature.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = signature.hpp; path = src/signature.hpp; sourceTree = "<group>"; };
+		036AC178288EEAD2008C1E2D /* libplist-2.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libplist-2.0.a"; path = "third_party/libplist/2.2.0/lib/libplist-2.0.a"; sourceTree = "<group>"; };
+		036AC17A288EEAF5008C1E2D /* libplist-2.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libplist-2.0.a"; path = "third_party/libplist/2.2.0/lib/libplist-2.0.a"; sourceTree = "<group>"; };
 		0373D0CE19D99D5400754E1D /* macho_inject */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = macho_inject; sourceTree = BUILT_PRODUCTS_DIR; };
 		03FFB24227CAD365003D3CA8 /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = third_party/boost_1_78_0/stage/lib/libboost_system.a; sourceTree = "<group>"; };
 		03FFB24327CAD365003D3CA8 /* libboost_program_options.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_program_options.a; path = third_party/boost_1_78_0/stage/lib/libboost_program_options.a; sourceTree = "<group>"; };
@@ -75,6 +78,7 @@
 			files = (
 				03FFB24427CAD365003D3CA8 /* libboost_system.a in Frameworks */,
 				03FFB24527CAD365003D3CA8 /* libboost_program_options.a in Frameworks */,
+				036AC179288EEAD6008C1E2D /* libplist-2.0.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,6 +88,7 @@
 		031F2C431E65AEAA002C2898 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				036AC178288EEAD2008C1E2D /* libplist-2.0.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -133,6 +138,7 @@
 			children = (
 				03FFB24327CAD365003D3CA8 /* libboost_program_options.a */,
 				03FFB24227CAD365003D3CA8 /* libboost_system.a */,
+				036AC17A288EEAF5008C1E2D /* libplist-2.0.a */,
 			);
 			name = Libs;
 			sourceTree = "<group>";
@@ -304,14 +310,16 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				GCC_PREFIX_HEADER = src/Headers.pch;
-				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/third_party/boost_1_78_0\"";
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/third_party/boost_1_78_0\"",
+					"\"$(SRCROOT)/third_party/libplist/2.2.0/include\"",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/third_party/boost_1_78_0/stage/lib",
 					"$(PROJECT_DIR)",
-					/usr/local/lib,
+					"$(PROJECT_DIR)/third_party/libplist/2.2.0/lib",
 				);
-				OTHER_LDFLAGS = "-lplist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SYSTEM_HEADER_SEARCH_PATHS = /usr/local/include;
 				VERSIONING_SYSTEM = "";
@@ -323,14 +331,16 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				GCC_PREFIX_HEADER = src/Headers.pch;
-				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/third_party/boost_1_78_0\"";
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/third_party/boost_1_78_0\"",
+					"\"$(SRCROOT)/third_party/libplist/2.2.0/include\"",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/third_party/boost_1_78_0/stage/lib",
 					"$(PROJECT_DIR)",
-					/usr/local/lib,
+					"$(PROJECT_DIR)/third_party/libplist/2.2.0/lib",
 				);
-				OTHER_LDFLAGS = "-lplist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SYSTEM_HEADER_SEARCH_PATHS = /usr/local/include;
 				VERSIONING_SYSTEM = "";

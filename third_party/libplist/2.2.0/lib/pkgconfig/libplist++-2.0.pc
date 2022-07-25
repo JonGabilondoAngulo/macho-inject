@@ -1,0 +1,11 @@
+prefix=/usr/local/Cellar/libplist/2.2.0
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libplist++
+Description: C++ binding for libplist
+Version: 2.2.0
+Libs: -L${libdir} -lplist++-2.0
+Cflags: -I${includedir}
+Requires.private: libplist-2.0 >= 2.2.0
