@@ -17,6 +17,8 @@ static int patch_binary(const std::filesystem::path & binaryPath,
                         bool isFramework,
                         bool remove_code_signature);
 
+#pragma mark Public
+
 int inj_inject_framework_into_app(const std::filesystem::path &appPath, const std::filesystem::path &frameworkPath, bool remove_code_signature)
 {
     int err = noErr;
@@ -70,6 +72,7 @@ int inj_inject_framework_into_app(const std::filesystem::path &appPath, const st
     }
     return noErr;
 }
+
 
 void inj_inject_dylib(FILE* binaryFile, uint32_t top, const std::filesystem::path& dylibPath, bool remove_code_signature)
 {
@@ -160,6 +163,8 @@ void inj_inject_dylib(FILE* binaryFile, uint32_t top, const std::filesystem::pat
 
 #endif
 }
+
+#pragma mark Private
 
 int patch_binary(const std::filesystem::path & binaryPath, const std::filesystem::path & dllPath, bool isFramework, bool remove_code_signature)
 {

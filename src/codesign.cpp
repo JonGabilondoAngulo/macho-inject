@@ -91,6 +91,7 @@ bool codesign_binaries_in_folder(const std::filesystem::path &folderPath,
             // Checking if file extension
             if (extension == ".dylib" ||
                 extension == ".framework" ||
+                extension == ".bundle" ||
                 extension == ".xpc" ||
                 strstr(extension.c_str(), "plugin") ||  // .*plugin
                 extension == ".appex") {
@@ -109,16 +110,25 @@ bool codesign_binaries_in_folder(const std::filesystem::path &folderPath,
     return success;
 }
 
-int codesign_remove_signature(const std::filesystem::path &appPath)
+int codesign_remove_signature_from_app(const std::filesystem::path &appPath)
 {
-    ORGLOG_V("Removing Code Signature");
+    ORGLOG_V("Removing Code Signature ...");
     
     int err = 0;
-    std::string pathToCodeSignature = appPath.string() + "/_CodeSignature";
+
+    std::string systemCmd = (std::string)"/usr/bin/codesign --deep --remove-signature '" + appPath.string() + "'" + silenceCmdOutput;
+    err = system((const char*)systemCmd.c_str());
+    if (err) {
+        std::cout << "Error: Failed to remove code signature from app.\n";
+    }
+    
+    /*
+    std::string pathToCodeSignature = appPath.string() + "/Contents/_CodeSignature";
     std::string systemCmd = (std::string)"rm -rf '" + (std::string)pathToCodeSignature + (std::string)"'";
     err = system((const char*)systemCmd.c_str());
     if(err)
         std::cout << "Error: Failed to remove codesignature file.\n";
+    */
     
     return err;
 }

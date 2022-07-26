@@ -12,7 +12,7 @@ int cmd_opt_add_descriptions(boost::program_options::options_description & descr
     description.add_options()
     ("help,h", "Print help message.")
     ("inject-framework,f", boost::program_options::value< std::string >(), "Inject a framework into the App. arg: the full path the the framework.")
-    ("sign,s", boost::program_options::value< std::string >(), "Sig the app with a certificate. arg: the name of the certificate as shown in the keychain.")
+    ("sign,s", boost::program_options::value< std::string >(), "Sig the app with a certificate. arg: the name of the certificate as shown in the keychain or '-' for adhoc.")
     ("provision,p", boost::program_options::value< std::string >(), "Attach a mobile provision profile to the App. arg: full path to the .mobileprovision file.")
     ("entitlements,e", boost::program_options::value< std::string >(), "Add entitlements file. arg: full path to the entitlements file.")
     ("resource-rules,r", boost::program_options::value< std::string >(), "Your custom resource rules file. arg: full path to resource file.")
@@ -23,9 +23,10 @@ int cmd_opt_add_descriptions(boost::program_options::options_description & descr
     ("force-res-rules", "It will try as if parameters --original-res-rules was set, if no original rules found it will be as if parameter --generic-res-rules defined.")
     ("remove-entitlements", "Remove entitlements file from App.")
     ("remove-signature", "Remove code signature from binary and '_CodeSignature' folder.")
+    ("input-file,i", boost::program_options::value< std::string >(), "Full path to the file App/IPA file to operate on.")
+    ("hardened,H", "Harden the binary (equivalent to option 'runtime'")
     ("verbose,v", "Verbose.")
     ("version,V", "Print version.")
-    ("input-file,i", boost::program_options::value< std::string >(), "Full path to the file App/IPA file to operate on.")
     ;
     return 0;
 }

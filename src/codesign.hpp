@@ -14,7 +14,7 @@
 
 bool codesign_fs_object(const std::filesystem::path & folderPath, const std::string& fsObjectName, const std::filesystem::path& certificateFilePath, const std::filesystem::path& entitlementsFilePath);
 bool codesign_binaries_in_folder(const std::filesystem::path & folderPath, const std::filesystem::path&  certificateFilePath, const std::filesystem::path&  entitlementsFilePath);
-int codesign_remove_signature(const std::filesystem::path& appPath);
+int codesign_remove_signature_from_app(const std::filesystem::path& appPath);
 
 #pragma mark - Entitlements functions
 

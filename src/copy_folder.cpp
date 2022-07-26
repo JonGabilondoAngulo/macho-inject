@@ -16,7 +16,7 @@ bool copy_app(const std::filesystem::path &appPath,  const std::filesystem::path
     std::filesystem::path bundleName = appPath.filename();
     finalAppPath = destinationPath / bundleName;
     
-    std::string systemCmd = (std::string)"/bin/cp -fa " + QUOTE + appPath.string() + QUOTE + SPACE + finalAppPath.string();
+    std::string systemCmd = (std::string)"/bin/cp -fa " + QUOTE + appPath.string() + QUOTE + SPACE + QUOTE + finalAppPath.string() + QUOTE;
     int err = system(systemCmd.c_str());
     if (err != noErr) {
         ORGLOG("Error: Failed target app to folder: " << finalAppPath);
@@ -42,7 +42,7 @@ bool copy_bundle(const std::filesystem::path &bundlePath,  const std::filesystem
         return false;
     }
     
-    std::string systemCmd = (std::string)"/bin/cp -fa " + QUOTE + bundlePath.string() + QUOTE + SPACE + finalDirPath.string();
+    std::string systemCmd = (std::string)"/bin/cp -fa " + QUOTE + bundlePath.string() + QUOTE + SPACE + QUOTE + finalDirPath.string() + QUOTE;
     int err = system(systemCmd.c_str());
     if (err != noErr) {
         ORGLOG("Error: Failed copying bundle to folder: " << finalDirPath);

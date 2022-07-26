@@ -12,7 +12,7 @@ bool createFile(const std::filesystem::path & filePath, const std::string & cont
 {
     if (removeFirst && std::filesystem::exists(filePath)) {
         std::error_code error;
-        if (!std::filesystem::remove(filePath), error) {
+        if (!std::filesystem::remove(filePath, error)) {
             ORGLOG("Failed to remove file: " << filePath.string() << " Err: " << error.message());
         }
     }

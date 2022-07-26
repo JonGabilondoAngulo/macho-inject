@@ -13,4 +13,6 @@
 
 void sign_show_signature(FILE* binaryFile);
 
+int sign_remove_signature_from_app(const std::filesystem::path &appPath);
+
 #endif /* signature_hpp */

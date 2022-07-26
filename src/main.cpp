@@ -11,17 +11,18 @@
 #include "packaging.hpp"
 #include "plist.hpp"
 #include "copy_folder.hpp"
+#include "signature.hpp"
 
 bool doInjectFramework      = false;
 bool doCodesign             = false;
-bool copyEntitlements       = false;
-bool useResourceRules       = false;
-bool removeEntitlements     = false;
-bool removeSignature        = false;
-bool createNewUrlScheme     = true;
-bool useOriginalResRules    = false;
-bool useGenericResRules     = false;
-bool forceResRules          = false;
+bool doCopyEntitlements     = false;
+bool doUseResourceRules     = false;
+bool doRemoveEntitlements   = false;
+bool doRemoveSignature      = false;
+bool doUseOriginalResRules  = false;
+bool doUseGenericResRules   = false;
+bool doForceResRules        = false;
+bool doHardened             = false;
 bool isIpaFile              = false;
 bool isAppFile              = false;
 
@@ -78,18 +79,18 @@ int parse_options(int argc, const char * argv[])
         doCodesign = true;
     }
     if (vm.count("remove-signature")) {
-        removeSignature = true;
+        doRemoveSignature = true;
     }
     if (vm.count("provision")) {
         argProvisionPath = vm["provision"].as<std::string>();
     }
     if (vm.count("entitlements")) {
         argEntitlementsPath = vm["entitlements"].as<std::string>();
-        copyEntitlements = true;
+        doCopyEntitlements = true;
     }
     if (vm.count("resource-rules")) {
         argResourceRulesPath = vm["resource-rules"].as<std::string>();
-        useResourceRules = true;
+        doUseResourceRules = true;
     }
     if (vm.count("output-dir")) {
         argDestinationPath = vm["output-dir"].as<std::string>();
@@ -97,29 +98,34 @@ int parse_options(int argc, const char * argv[])
     if (vm.count("output-name")) {
         argNewName = vm["output-name"].as<std::string>();
     }
-    if (vm.count("no-url-scheme")) {
-        createNewUrlScheme = false;
-    }
     if (vm.count("original-res-rules")) {
-        useOriginalResRules = true;
+        doUseOriginalResRules = true;
     }
     if (vm.count("generic-res-rules")) {
-        useGenericResRules = true;
+        doUseGenericResRules = true;
     }
     if (vm.count("force-res-rules")) {
-        forceResRules = true;
+        doForceResRules = true;
     }
     if (vm.count("remove-entitlements")) {
-        removeEntitlements = true;
+        doRemoveEntitlements = true;
     }
     if (vm.count("remove-signature")) {
-        removeSignature = true;
+        doRemoveSignature = true;
+    }
+    if (vm.count("hardened")) {
+        doHardened = true;
     }
     return err;
 }
 
 int check_arguments()
 {
+    if (doCodesign && doRemoveSignature) {
+        ORGLOG("Error. Requesting remove signature and signing is incompatible.");
+        return (ERR_Bad_Argument);
+    }
+
     if (!argTargetFilePath.empty()) {
         ORGLOG_V("App to patch: " << argTargetFilePath);
 
@@ -169,7 +175,7 @@ int codesign_app()
 {
     int err = noErr;
 
-    ORGLOG("Codesigning the app ...");
+    ORGLOG("Codesigning the app with '" << (std::string)argCertificatePath.c_str() << "' ...");
     
     if (!argProvisionPath.empty()) {
         err = codesign_copy_provision_file(workingAppPath, argProvisionPath);
@@ -178,25 +184,26 @@ int codesign_app()
         }
     }
     
-    if (removeEntitlements) {
+    if (doRemoveEntitlements) {
         err = codesign_remove_entitlements(workingAppPath);
     }
     
-    if (removeSignature) {
-        err = codesign_remove_signature(workingAppPath);
-    }
-    
     std::string systemCmd = (std::string)"/usr/bin/codesign --force -s '" + (std::string)argCertificatePath.c_str() + (std::string)"' ";
+    
+    // hardened
+    if (doHardened) {
+        systemCmd += (std::string)" --options runtime " ;
+    }
     
     // Important entitlements info:
     // no entitlements provided in arguments, extract them from mobile provision
     // the provision file could be given in argument, if not extract it from the embeded.mobileprovision
     std::filesystem::path entitlementsFilePath;
     
-    if (copyEntitlements) {
+    if (doCopyEntitlements) {
         entitlementsFilePath = argEntitlementsPath;
         
-        ORGLOG_V("Codesign using entitlements. " << entitlementsFilePath);
+        ORGLOG_V("Codesign using entitlements: " << entitlementsFilePath);
         systemCmd += (std::string)" --entitlements='" + entitlementsFilePath.string() + "'";
     } else {
         ORGLOG_V("Codesign preserving entitlements.");
@@ -204,14 +211,14 @@ int codesign_app()
     }
                 
     std::string resRulesFile;
-    if (useResourceRules) {
+    if (doUseResourceRules) {
         resRulesFile = argResourceRulesPath.c_str();
     } else {
-        resRulesFile = codesign_resource_rules_file(forceResRules, useOriginalResRules, useGenericResRules, workingAppPath, tempDirectoryPath);
+        resRulesFile = codesign_resource_rules_file(doForceResRules, doUseOriginalResRules, doUseGenericResRules, workingAppPath, tempDirectoryPath);
     }
     
     if (!resRulesFile.empty()) {
-        ORGLOG_V("Codesign using resource rules file :" << (std::string)resRulesFile);
+        ORGLOG_V("Codesign using resource rules file: " << (std::string)resRulesFile);
         systemCmd += (std::string)" --resource-rules='" + resRulesFile + "'";
     }
     
@@ -262,7 +269,7 @@ int codesign_app()
     // sign the app
     err = system((const char*)systemCmd.c_str());
     if (err) {
-        ORGLOG("Codesigning app failed");
+        ORGLOG("Code signing app failed. Cmd: " << systemCmd);
         return  ERR_App_Codesign_Failed;
     }
 
@@ -331,7 +338,7 @@ int prepare_folders()
     return noErr;
 }
 
-int deploy_app_in_destination()
+int deploy_app_to_destination()
 {
     int err = noErr;
     
@@ -351,7 +358,7 @@ int deploy_app_in_destination()
          }
     } else if (isAppFile) {
         if (!argDestinationPath.empty()) {
-            ORGLOG_V("Copying injected App to destination folder ...");
+            ORGLOG_V("Copying App to destination folder ...");
             std::filesystem::path finalAppPath;
             if (copy_app(workingAppPath, argDestinationPath, finalAppPath)) {
                 ORGLOG("New App path: " << finalAppPath);
@@ -380,16 +387,17 @@ int main(int argc, const char * argv[])
         exit(err);
     
     err = check_arguments();
-    if (err != noErr)
+    if (err != noErr) {
+        ORGLOG("Use --help.");
         exit(err);
+    }
 
     err = prepare_folders();
     if (err != noErr)
         exit(err);
 
-
     if (doInjectFramework) {
-        err = inj_inject_framework_into_app(workingAppPath, argFrameworkPath, removeSignature);
+        err = inj_inject_framework_into_app(workingAppPath, argFrameworkPath, doRemoveSignature);
         if (err != noErr)
             goto CLEAN_EXIT;
     }
@@ -399,8 +407,14 @@ int main(int argc, const char * argv[])
         if (err != noErr)
             exit(err);
     }
-    
-    err = deploy_app_in_destination();
+
+    if (doRemoveSignature) {
+        err = codesign_remove_signature_from_app(workingAppPath);
+        if (err != noErr)
+            goto CLEAN_EXIT;
+    }
+
+    err = deploy_app_to_destination();
         
     
 CLEAN_EXIT:
