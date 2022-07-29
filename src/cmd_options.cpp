@@ -13,7 +13,7 @@ int cmd_opt_add_descriptions(boost::program_options::options_description & descr
     ("help,h", "Print help message.")
     ("inject-framework,f", boost::program_options::value< std::string >(), "Inject a framework into the App. arg: the full path the the framework.")
     ("sign,s", boost::program_options::value< std::string >(), "Sig the app with a certificate. arg: the name of the certificate as shown in the keychain or '-' for adhoc.")
-    ("provision,p", boost::program_options::value< std::string >(), "Attach a mobile provision profile to the App. arg: full path to the .mobileprovision file.")
+    ("provision,p", boost::program_options::value< std::string >(), "Attach a mobile provision profile to the App. arg: full path to the .mobileprovision/.provisionprofile file.")
     ("entitlements,e", boost::program_options::value< std::string >(), "Add entitlements file. arg: full path to the entitlements file.")
     ("resource-rules,r", boost::program_options::value< std::string >(), "Your custom resource rules file. arg: full path to resource file.")
     ("output-dir,o", boost::program_options::value< std::string >(), "An optional path of the folder to place the new ipa. The folder must exist.")

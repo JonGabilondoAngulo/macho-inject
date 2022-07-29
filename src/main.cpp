@@ -197,7 +197,7 @@ int codesign_app()
     
     // Important entitlements info:
     // no entitlements provided in arguments, extract them from mobile provision
-    // the provision file could be given in argument, if not extract it from the embeded.mobileprovision
+    // the provision file could be given in argument, if not extract it from the embeded.mobileprovision(ios) or embedded.provisionprofile(mac)
     std::filesystem::path entitlementsFilePath;
     
     if (doCopyEntitlements) {
@@ -206,8 +206,8 @@ int codesign_app()
         ORGLOG_V("Codesign using entitlements: " << entitlementsFilePath);
         systemCmd += (std::string)" --entitlements='" + entitlementsFilePath.string() + "'";
     } else {
-        ORGLOG_V("Codesign preserving entitlements.");
-        systemCmd += " --preserve-metadata=entitlements";
+        ORGLOG_V("Codesign preserving metadata.");
+        systemCmd += " --preserve-metadata ";
     }
                 
     std::string resRulesFile;
@@ -241,6 +241,13 @@ int codesign_app()
     std::filesystem::path frameworksFolderPath = workingAppPath;
     frameworksFolderPath.append("Contents/Frameworks");
     if (codesign_binaries_in_folder(frameworksFolderPath, argCertificatePath, entitlementsFilePath)) {
+        ORGLOG_V("Frameworks codesign sucessful!");
+    }
+
+    // Codesigning Library
+    std::filesystem::path libraryFolderPath = workingAppPath;
+    libraryFolderPath.append("Contents/Library");
+    if (codesign_binaries_in_folder(libraryFolderPath, argCertificatePath, entitlementsFilePath)) {
         ORGLOG_V("Frameworks codesign sucessful!");
     }
 

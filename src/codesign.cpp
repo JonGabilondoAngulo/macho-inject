@@ -38,39 +38,74 @@ const std::string sResourceRulesTemplate = "<?xml version=\"1.0\" encoding=\"UTF
 bool codesign_fs_object(const std::filesystem::path &folderPath,
                         const std::string &fsObjectName,
                         const std::filesystem::path &certificateFilePath,
-                        const std::filesystem::path &entitlementsFilePath)
+                        const std::filesystem::path &entitlementsFilePath,
+                        const bool removeSignature)
 {
     bool result = false;
     
-    if (!certificateFilePath.string().empty() && !folderPath.string().empty() && !fsObjectName.empty()) {
-        std::string systemCmd = (std::string)"/usr/bin/codesign -f --deep -s '" + certificateFilePath.string() + "'" + silenceCmdOutput;
+    if (folderPath.string().empty() || fsObjectName.empty()) {
+        return false;
+    }
+    
+    // Codesign inner folders
+    std::filesystem::path fsObjPath = folderPath;
+    fsObjPath.append(fsObjectName);
+    std::error_code errorCode;
+    if (std::filesystem::is_directory(fsObjPath, errorCode) && !std::filesystem::is_symlink(fsObjPath, errorCode) ) {
+        codesign_binaries_in_folder(fsObjPath, certificateFilePath, entitlementsFilePath, removeSignature);
+    }
+
+    
+    // Codesign the object itself, could be a frameworkd, bundle, app
+    std::string systemCmd = (std::string)"/usr/bin/codesign ";
+
+    if (removeSignature) {
+        systemCmd += " --remove-signature ";
+    } else {
+        if (certificateFilePath.string().empty()) {
+            ORGLOG_V("Error. Ceritificate name not provided.");
+            return false;
+        }
         
-        // add entitlements to cmd
-        if (entitlementsFilePath.string().length()) {
+        systemCmd += (std::string)" -f -s '" + certificateFilePath.string() + "'";
+        
+        // DO NOT add entitlements to frameworks !
+        // https://developer.apple.com/documentation/xcode/using-the-latest-code-signature-format
+        /*if (entitlementsFilePath.string().length()) {
             systemCmd += (std::string)" --entitlements='" + entitlementsFilePath.string() + "' ";
         } else {
             systemCmd += " --preserve-metadata=entitlements";
-        }
+        }*/
+        systemCmd += " --preserve-metadata ";
+    }
         
-        // add dllpath to cmd
-        systemCmd += " \"" + folderPath.string() + "/" + fsObjectName + "\"";
-        
-        int err = system(systemCmd.c_str());
-        result = err==noErr;
-        
-        if (result) {
+    // add fsobj to cmd
+    systemCmd += " \"" + folderPath.string() + "/" + fsObjectName + "\""  + silenceCmdOutput;
+    
+    int err = system(systemCmd.c_str());
+    result = err==noErr;
+    
+    if (result) {
+        if (removeSignature) {
+            ORGLOG_V("Success removing signature: " << (folderPath / fsObjectName));
+        } else {
             ORGLOG_V("Success signing: " << (folderPath / fsObjectName));
+        }
+    } else {
+        if (removeSignature) {
+            ORGLOG_V("Error. Failed removing signature " << (folderPath / fsObjectName));
         } else {
             ORGLOG_V("Error. Failed to sign: " << (folderPath / fsObjectName));
         }
     }
-    
+
     return result;
 }
 
 bool codesign_binaries_in_folder(const std::filesystem::path &folderPath,
                                  const std::filesystem::path &certificateFilePath,
-                                 const std::filesystem::path &entitlementsFilePath)
+                                 const std::filesystem::path &entitlementsFilePath,
+                                 const bool removeSignature)
 {
     bool success = false;
     
@@ -78,27 +113,42 @@ bool codesign_binaries_in_folder(const std::filesystem::path &folderPath,
     DIR* dirFile = opendir(folderPath.c_str());
     if (dirFile)
     {
-        // Iterating over all files in app's path
+        // Iterating over all files in folder
         struct dirent* aFile;
         while ((aFile = readdir(dirFile)) != NULL)
         {
             // Ignoring current directory and parent directory names
-            if (!strcmp(aFile->d_name, ".")) continue;
-            if (!strcmp(aFile->d_name, "..")) continue;
-            
+            if (strcmp(aFile->d_name, ".") == 0) continue;
+            if (strcmp(aFile->d_name, "..") == 0) continue;
+                  
             std::filesystem::path extension = std::filesystem::path(aFile->d_name).extension();
-            
-            // Checking if file extension
+
             if (extension == ".dylib" ||
                 extension == ".framework" ||
                 extension == ".bundle" ||
+                extension == ".app" ||
                 extension == ".xpc" ||
+                extension == ".node" ||
+                extension == ".bin" ||
                 strstr(extension.c_str(), "plugin") ||  // .*plugin
                 extension == ".appex") {
                 
-                codesign_fs_object(folderPath, aFile->d_name, certificateFilePath, entitlementsFilePath);
+                codesign_fs_object(folderPath, aFile->d_name, certificateFilePath, entitlementsFilePath, removeSignature);
+            } else {
+                std::filesystem::path fsObjPath = folderPath;
+                fsObjPath.append(aFile->d_name);
+                std::error_code errorCode;
+                if (std::filesystem::is_directory(fsObjPath, errorCode) &&
+                    !std::filesystem::is_symlink(fsObjPath, errorCode) &&
+                    extension != ".lproj" &&
+                    extension != ".pak" &&
+                    extension != ".nib" 
+                    )
+                {
+                    success = codesign_binaries_in_folder(fsObjPath, certificateFilePath, entitlementsFilePath, removeSignature);
+                }
             }
-        }
+         }
         
         // Done iterating, closing directory stream
         closedir(dirFile);
@@ -116,20 +166,18 @@ int codesign_remove_signature_from_app(const std::filesystem::path &appPath)
     
     int err = 0;
 
-    std::string systemCmd = (std::string)"/usr/bin/codesign --deep --remove-signature '" + appPath.string() + "'" + silenceCmdOutput;
+    // remove signature from all inner binaries
+    const std::filesystem::path certificateFilePath;
+    const std::filesystem::path entitlementsFilePath;
+    codesign_binaries_in_folder(appPath, certificateFilePath, entitlementsFilePath, true);
+    
+    // remove signature from app
+    std::string systemCmd = (std::string)"/usr/bin/codesign --remove-signature '" + appPath.string() + "'" + silenceCmdOutput;
     err = system((const char*)systemCmd.c_str());
     if (err) {
         std::cout << "Error: Failed to remove code signature from app.\n";
     }
-    
-    /*
-    std::string pathToCodeSignature = appPath.string() + "/Contents/_CodeSignature";
-    std::string systemCmd = (std::string)"rm -rf '" + (std::string)pathToCodeSignature + (std::string)"'";
-    err = system((const char*)systemCmd.c_str());
-    if(err)
-        std::cout << "Error: Failed to remove codesignature file.\n";
-    */
-    
+        
     return err;
 }
 
@@ -205,10 +253,15 @@ bool codesign_extract_entitlements_from_app(const std::string &appPath, std::str
 int codesign_copy_provision_file(const std::filesystem::path &appPath, const std::filesystem::path &argProvision)
 {
     ORGLOG_V("Adding provision file to app");
-    
+        
     int err = 0;
-    std::string pathToProvision = appPath.string() + "/" + "embedded.mobileprovision";
-    std::string systemCmd = (std::string)"/bin/cp -af \"" + argProvision.string() + "\" \"" + (std::string)pathToProvision + "\"";
+    std::filesystem::path pathToProvision = appPath;
+    // TODO: fix it for iOS
+    pathToProvision.append("Contents");
+    pathToProvision.append("embedded");
+    pathToProvision.replace_extension(argProvision.extension());
+    
+    std::string systemCmd = (std::string)"/bin/cp -af \"" + argProvision.string() + "\" \"" + pathToProvision.u8string() + "\"";
     err = system((const char*)systemCmd.c_str());
     if(err)std::cout << "Error: Failed copying provision file. Profile:" << argProvision << " Destination:" << pathToProvision << std::endl;
     
